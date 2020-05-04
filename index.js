@@ -55,7 +55,18 @@ const proxy = http.createServer((req, res) => {
 var io = require('socket.io').listen(proxy);
 
 io.sockets.on('connection', (socket) => {
-    
+
+    socket.on('login', (message) => {
+        console.log(message.username + " vient de se connecter");
+        socket.emit('login', message);
+        socket.broadcast.emit('login', message);
+    });
+
+    socket.on('message', (message) => {
+        socket.emit('message', message);
+        socket.broadcast.emit('message', message);
+    });
+
 });
 
 proxy.listen(PORT, () => console.log(`Server running on ${PORT}`));

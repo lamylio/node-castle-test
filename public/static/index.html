@@ -5,20 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test </title>
     <link rel="stylesheet" href="./css/main.css">
+    <style>
+        .chatbox{
+            margin: auto;
+            text-align: center;
+            border: 2px solid black;
+            width: 500px;
+            min-height: 200px;
+        }
 
+        .chatbox tr td {
+            height: 10px;
+            border: 1px solid grey;
+            padding: 10px;
+            margin: 2px;
+        }
+    </style>
 </head>
 <body>
     <h1>Ce serveur tourne avec Node.js et est codé en Javascript</h1>
     <h2>En outre, le package "socket.io" est employé.</h2>
 
-    <button>Envoyer une alerte détectable par le serveur</button>
-    <output placeholder="Messages reçus par le serveur: "></output>
+    <div>
+
+        <table class="chatbox">
+
+            <tr>
+                
+            </tr>
+
+        </table>
+        
+        <input type="text" placeholder="Ecrire un message.."></input>
+        <button>Envoyer</button>
+    </div>
+
+    
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        var socket = io.connect('http://localhost:5000');
+        const pseudo = prompt('Quel est votre pseudo ? ') || "Inconnu";
+        const socket = io.connect('http://localhost:5000');
+
+        const chat = document.querySelector('.chatbox').children[0];
+        const button = document.querySelector('button');
+
+        let date = new Date();
+        date = date.getHours() + ":" + date.getMinutes();
+        socket.emit('login', { date: date, username: pseudo});
+        
+        socket.on('login', (message) => {
+            createMessage(message.date, message.username + " a rejoint la discussion.", true);
+        });
+
         socket.on('message', (message) => {
-            alert(message.date + " | " + message.content);
-        })
+            createMessage(message.date, message.username + ": " + message.content, false);
+        });
+
+        function createMessage(leftMessage, rightMessage, bold){
+            let box = document.createElement('tr'), left = document.createElement('td'), right = document.createElement('td');
+            left.innerText = leftMessage;
+            right.innerText = rightMessage;
+            if(bold) right.style.fontWeight = 'bold';
+            box.appendChild(left);
+            box.appendChild(right);
+            chat.appendChild(box);
+        }
+
+        button.onclick = (e) => {
+            let input = document.querySelector('input');
+            socket.emit('message', { date: date, username: pseudo, content: input.value});
+            input.value = '';
+        }
+
+
     </script>
 </body>
 </html>

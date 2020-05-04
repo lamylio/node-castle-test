@@ -96,7 +96,7 @@
             p.classList.add('user_message');
             if(isClient)p.classList.add('right');
             else p.classList.add('left');
-            p.innerText = message;
+            p.innerHTML = message;
             chatbox.appendChild(p);
         }
 

@@ -1,72 +1,49 @@
-const http = require('http');
-const path = require('path');
-const fs = require('fs');
+const app = require('./app.js');
+const io = require('socket.io').listen(app.proxy);
+const sanitizeHtml = require('sanitize-html');
 
-const PORT = process.env.PORT || 5000;
+sanitizeHtml.allowedTags = ['i', 'u', 'strong', 'a'], sanitizeHtml.allowedAttributes = {'a': ['href']};
 
-const proxy = http.createServer((req, res) => {
-    let filePath = path.join(__dirname, 'public');
-    let ext = path.extname(req.url);
-    let contentType;
-    
-    switch (ext) {
-        case '.css':
-            contentType = "text/css";
-            break;
-        case '.png':
-            contentType = 'image/png';
-            break;
-        case '.jpg':
-            contentType = 'image/jpeg';
-            break;
-        case '.js':
-            contentType = "text/javascript";
-            break;
-        case '.json':
-            contentType = "application/json";
-            break;
-        case '.ico':
-            contentType = "image/x-icon";
-            break;
-        default:
-            filePath = path.join(filePath, "static");
-            contentType = "text/html";
-            break;
-    }
-
-    filePath = path.join(filePath, req.url === '/' ? 'index.html' : (req.url + (ext == "" ? ".html" : "")));
-
-    console.log(filePath);
-
-    fs.readFile(filePath, (err, content) => {
-        if(err){
-            if(err.code == 'ENOENT'){
-                res.end('NOT FOUND');
-            }else{
-                res.end('SERVER ERROR');
-            }
-        }
-
-        res.writeHead(200, {'Content-Type': contentType });
-        res.end(content, 'utf8');
-    });
-});
-
-var io = require('socket.io').listen(proxy);
+const authorizedChannels = ['Salon 1', 'Salon 2', 'Salon 3'];
 
 io.sockets.on('connection', (socket) => {
 
-    socket.on('login', (message) => {
-        console.log(message.username + " vient de se connecter");
-        socket.emit('login', message);
-        socket.broadcast.emit('login', message);
+    socket.on('join', (message) => {
+        /* Check if user is already in */
+        if (message.channel === socket.channel) return;
+        /* Check if channel asked is authorized */
+        if (!authorizedChannels.includes(message.channel)) return;
+        /* Leave all the channels and broadcast it */
+        socket.leaveAll();
+        socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username });
+        /* Sanitize the user's input (never trust users) */
+        let clean_username = sanitizeHtml(message.username);
+        /* Save date in the socket */
+        socket.username = clean_username;
+        socket.channel = message.channel
+        /* Join the channel and emit to user + members */
+        socket.join(message.channel);
+        socket.emit('user_joined', {username: clean_username});
+        socket.broadcast.in(message.channel).emit('user_joined', {username: clean_username});
+        console.log('%s a rejoint le channel : %s', message.username, message.channel);
     });
 
     socket.on('message', (message) => {
-        socket.emit('message', message);
-        socket.broadcast.emit('message', message);
+        if(socket.username && socket.channel){
+            let clean_content = sanitizeHtml(message.content);
+            socket.broadcast.in(socket.channel).emit('user_message', { username: socket.username, content: clean_content});
+            socket.emit('user_message', { username: socket.username, content: clean_content })
+        }
+    })
+
+    socket.on('leave', () => {
+        console.log(socket.username + "//" + socket.channel);
+        socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username });
+    })
+
+
+    socket.on('disconnect', () => {
+        socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username });
     });
 
 });
-
-proxy.listen(PORT, () => console.log(`Server running on ${PORT}`));

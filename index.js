@@ -2,6 +2,8 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
+const PORT = process.env.PORT || 5000;
+
 const proxy = http.createServer((req, res) => {
     let filePath = path.join(__dirname, 'public');
     let ext = path.extname(req.url);
@@ -27,6 +29,7 @@ const proxy = http.createServer((req, res) => {
             contentType = "image/x-icon";
             break;
         default:
+            filePath = path.join(filePath, "static");
             contentType = "text/html";
             break;
     }
@@ -49,5 +52,10 @@ const proxy = http.createServer((req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 5000;
+var io = require('socket.io').listen(proxy);
+
+io.sockets.on('connection', (socket) => {
+    
+});
+
 proxy.listen(PORT, () => console.log(`Server running on ${PORT}`));

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test </title>
+    <link rel="stylesheet" href="./css/main.css">
+
+</head>
+<body>
+    <h1>Ce serveur tourne avec Node.js et est codé en Javascript</h1>
+    <h2>En outre, le package "socket.io" est employé.</h2>
+
+    <button>Envoyer une alerte détectable par le serveur</button>
+    <output placeholder="Messages reçus par le serveur: "></output>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://localhost:5000');
+        socket.on('message', (message) => {
+            alert(message.date + " | " + message.content);
+        })
+    </script>
+</body>
+</html>

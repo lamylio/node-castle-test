@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/chatbox.css">
     <style>
-        
+
     </style>
 </head>
 <body>
@@ -109,7 +109,7 @@
         });
 
         socket.on('user_message', (message) => {
-            newUserMessage(message.username + ": " + message.content, message.username == pseudo);
+            newUserMessage("<b>"+message.username+"</b>" + ": " + message.content, message.username == pseudo);
         });
 
 

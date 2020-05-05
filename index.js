@@ -6,6 +6,6 @@ dotenv.config();
 /* HTTP Init */
 module.exports.http = require('./src/http.js');
 /* Database Init */
-module.exports.sqlite = require('./src/sqlite.js');
+module.exports.postgres = require('./src/pg.js');
 /* Socket Init */
 module.exports.socket = require('./src/socket.js');

@@ -26,6 +26,7 @@ io.sockets.on('connection', (socket) => {
         
         /* Sanitize the user's input (never trust users) */
         let clean_username = sanitizeHtml(message.username);
+        if(clean_username.length < 1) clean_username = "Hacker";
         /* Save date in the socket */
         socket.username = clean_username;
         socket.channel = message.channel

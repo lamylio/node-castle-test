@@ -45,8 +45,8 @@ io.sockets.on('connection', (socket) => {
 
     function sendManyMessages(err, messages){
         if(err) return;
-        messages = messages.rows;
-        for (let i = messages.length-1; i > 0; i--){
+        messages = messages.rows; 
+        for (let i = messages.length-1; i >= 0; i--){
             let message = messages[i];
             socket.emit(message.event, message);
         }

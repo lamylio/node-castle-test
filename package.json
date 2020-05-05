@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Node, socket and sqlite-database",
   "main": "./index.js",
+  "engines": {
+    "node": "12.16.3"
+  },
   "scripts": {
     "start": "node ./index.js",
     "start_watch": "pm2 start ./ecosystem.config.js --watch",

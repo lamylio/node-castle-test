@@ -96,14 +96,12 @@
             let classes = ["user_message"], content;
             if (message.username == pseudo){
                 classes.push("right");
-                content = message.content;
             }else {
                 classes.push("left");
-                content = '<b>' + message.username + '</b> : ' + message.content;
             }
             createCustomElement('p', chatbox, {
                 class: classes,
-                content: content,
+                content: '<b>' + message.username + '</b> : ' + message.content,
                 title: message.date
             });
 

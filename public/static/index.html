@@ -95,6 +95,7 @@
         function newUserMessage(message, isClient = false){
             let classes = ["user_message"], content;
             if (message.username == pseudo)
+                classes.push("right");
                 content = message.content;
             else {
                 classes.push("left");

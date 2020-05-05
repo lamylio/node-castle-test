@@ -10,7 +10,7 @@ const ERROR_500 = "./public/static/errors/500.html";
 
 /* HTTP */
 const proxy = http.createServer((req, res) => {
-    let filePath = path.join(__dirname, 'public');
+    let filePath = path.join('.', 'public');
     let ext = path.extname(req.url);
     let contentType;
 

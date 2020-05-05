@@ -87,31 +87,24 @@
         function newConsoleMessage(message){
             let p = document.createElement('p');
             p.classList.add('console_message');
-            p.innerText = message;
+            p.innerText = message.username + message.content;
+            p.title = message.date;
             chatbox.appendChild(p);
         }
         
         function newUserMessage(message, isClient = false){
             let p = document.createElement('p');
             p.classList.add('user_message');
-            if(isClient)p.classList.add('right');
+            if(message.username == pseudo)p.classList.add('right');
             else p.classList.add('left');
-            p.innerHTML = message;
+            p.innerHTML = '<b>' + message.username + '</b> : ' + message.content;
+            p.title = message.date;
             chatbox.appendChild(p);
         }
 
-        socket.on('user_joined', (message) => {
-            newConsoleMessage(message.username + " vient de se connecter au salon.");
-        });
-
-        socket.on('user_left', (message) => {
-            newConsoleMessage(message.username + " a quitté le salon.");
-        });
-
-        socket.on('user_message', (message) => {
-            newUserMessage("<b>"+message.username+"</b>" + ": " + message.content, message.username == pseudo);
-        });
-
+        socket.on('user_joined', newConsoleMessage);
+        socket.on('user_left', newConsoleMessage);
+        socket.on('user_message', newUserMessage);
 
     </script>
 </body>

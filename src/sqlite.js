@@ -25,8 +25,8 @@ this.db.run(
 `, (err) => { if (err) console.log(err)});
 
 this.db.insertMessage = (username, channel, content, event) => {
-    let stmt = this.db.prepare("INSERT INTO messages ('username', 'channel', 'content', 'event') VALUES (?, ?, ?, ?)");
-    stmt.run(username, channel, content, event);
+    let stmt = this.db.prepare("INSERT INTO messages ('username', 'channel', 'date', 'content', 'event') VALUES (?, ?, ?, ?, ?)");
+    stmt.run(username, channel, new Date().toLocaleString(), content, event);
     stmt.finalize();
 } 
 

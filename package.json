@@ -1,11 +1,11 @@
 {
   "name": "nsjscript",
   "version": "1.0.0",
-  "description": "Node and socket first try",
-  "main": "index.js",
+  "description": "Node, socket and sqlite-database",
+  "main": "./index.js",
   "scripts": {
     "start": "node ./index.js",
-    "start_watch": "pm2 start ./ecosystem.config.js",
+    "start_watch": "pm2 start ./ecosystem.config.js --watch",
     "stop_watch": "pm2 stop ./ecosystem.config.js"
   },
   "author": "Lioche",

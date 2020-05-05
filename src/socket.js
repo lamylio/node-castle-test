@@ -19,7 +19,7 @@ io.sockets.on('connection', (socket) => {
         if (message.channel === socket.channel) return;
         /* Check if channel asked is authorized */
         if (!authorizedChannels.includes(message.channel)) return;
-        if(socket.channel && socket.username){
+        if(socket.channel && socket.username && socket.username != "Inconnu"){
             /* Leave all the channels and broadcast it */
             socket.leaveAll();
             socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE, date: DATE});
@@ -34,8 +34,10 @@ io.sockets.on('connection', (socket) => {
         
         /* Join the channel and emit to user + members */
         socket.join(message.channel);
-        socket.broadcast.in(message.channel).emit('user_joined', { username: clean_username, content: JOIN_MESSAGE, date: DATE});
-        app.postgres.db.insertMessage(socket.username, socket.channel, JOIN_MESSAGE, 'user_joined');
+        if (socket.username != "Inconnu"){
+            socket.broadcast.in(message.channel).emit('user_joined', { username: clean_username, content: JOIN_MESSAGE, date: DATE});
+            app.postgres.db.insertMessage(socket.username, socket.channel, JOIN_MESSAGE, 'user_joined');
+        }
         app.postgres.db.getLastMessages(socket.channel, 15, sendManyMessages);
         
         console.log('%s a rejoint le channel : %s', message.username, message.channel);
@@ -60,7 +62,7 @@ io.sockets.on('connection', (socket) => {
     })
 
     socket.on('disconnect', () => {
-        if (socket.username && socket.channel) {
+        if (socket.username && socket.channel && socket.username != "Inconnu") {
             socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE, date: DATE});
             app.postgres.db.insertMessage(socket.username, socket.channel, LEAVE_MESSAGE, 'user_left');
         }

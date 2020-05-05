@@ -1,12 +1,15 @@
+/* Server requirements */
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
+/* Useful constants */
 const PORT = process.env.PORT || 5000;
 const ERROR_404 = "./public/static/errors/404.html";
 const ERROR_500 = "./public/static/errors/500.html";
 
-module.exports.proxy = http.createServer((req, res) => {
+/* HTTP */
+const proxy = http.createServer((req, res) => {
     let filePath = path.join(__dirname, 'public');
     let ext = path.extname(req.url);
     let contentType;
@@ -58,4 +61,6 @@ module.exports.proxy = http.createServer((req, res) => {
     });
 });
 
-this.proxy.listen(PORT, () => console.log(`Server running on ${PORT}`));
+proxy.listen(PORT, () => console.log(`Server running on ${PORT}`));
+
+module.exports = {proxy, PORT}

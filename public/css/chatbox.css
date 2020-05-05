@@ -44,6 +44,8 @@
     left: 15%;
     width: 80%;
     border: 1px solid grey;
+    overflow-y: auto;
+    max-height: 300px;
 }
 
 .chatbox p{
@@ -61,6 +63,12 @@
 
 .container textarea{
     margin: 5px 1em;
+}
+
+.container .send_message{
+    width: 40px;
+    height: 40px;
+    margin: auto 10px auto auto;
 }
 
 .left {

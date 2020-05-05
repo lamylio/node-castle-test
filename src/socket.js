@@ -19,11 +19,12 @@ io.sockets.on('connection', (socket) => {
         if (message.channel === socket.channel) return;
         /* Check if channel asked is authorized */
         if (!authorizedChannels.includes(message.channel)) return;
-        /* Leave all the channels and broadcast it */
-        socket.leaveAll();
-        socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE, date: DATE});
-        app.postgres.db.insertMessage(socket.username, socket.channel, LEAVE_MESSAGE, 'user_left');
-        
+        if(socket.channel && socket.username){
+            /* Leave all the channels and broadcast it */
+            socket.leaveAll();
+            socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE, date: DATE});
+            app.postgres.db.insertMessage(socket.username, socket.channel, LEAVE_MESSAGE, 'user_left');
+        }
         /* Sanitize the user's input (never trust users) */
         let clean_username = sanitizeHtml(message.username);
         if(clean_username.length < 1) clean_username = "Hacker";
@@ -42,8 +43,9 @@ io.sockets.on('connection', (socket) => {
 
     function sendManyMessages(err, messages){
         if(err) return;
-        console.log(messages);
-        for(message of messages){
+        messages = messages.rows;
+        for (let i = messages.length-1; i > 0; i--){
+            let message = messages[i];
             socket.emit(message.event, message);
         }
     }
@@ -58,9 +60,10 @@ io.sockets.on('connection', (socket) => {
     })
 
     socket.on('disconnect', () => {
-        socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE, date: DATE});
-        app.postgres.db.insertMessage(socket.username, socket.channel, LEAVE_MESSAGE, 'user_left');
-        app.postgres.db.end();
+        if (socket.username && socket.channel) {
+            socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE, date: DATE});
+            app.postgres.db.insertMessage(socket.username, socket.channel, LEAVE_MESSAGE, 'user_left');
+        }
     });
 
 });

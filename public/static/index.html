@@ -31,7 +31,7 @@
     
     <div class="container">
         <textarea class="one_quart" type="text" id="message" placeholder="Bonjour, comment allez-vous..?"></textarea>
-        <button>💬</button>
+        <button class="send_message">💬</button>
     </div>
     
     <script src="/socket.io/socket.io.js"></script>
@@ -85,21 +85,48 @@
         /* Receiving */
 
         function newConsoleMessage(message){
-            let p = document.createElement('p');
-            p.classList.add('console_message');
-            p.innerText = message.username + message.content;
-            p.title = message.date;
-            chatbox.appendChild(p);
+            createCustomElement('p', chatbox, {
+                class: ["console_message"], 
+                content: message.username + message.content,
+                title: message.date
+            });
         }
         
         function newUserMessage(message, isClient = false){
-            let p = document.createElement('p');
-            p.classList.add('user_message');
-            if(message.username == pseudo)p.classList.add('right');
-            else p.classList.add('left');
-            p.innerHTML = '<b>' + message.username + '</b> : ' + message.content;
-            p.title = message.date;
-            chatbox.appendChild(p);
+            let classes = ["user_message"], content;
+            if (message.username == pseudo)
+                content = message.content;
+            else {
+                classes.push("left");
+                content = '<b>' + message.username + '</b> : ' + message.content;
+            }
+            createCustomElement('p', chatbox, {
+                class: classes,
+                content: content,
+                title: message.date
+            });
+
+        }
+
+        function createCustomElement(type, parent, attributes){
+            let e = document.createElement(type);
+            
+            for(attr in attributes){
+                switch (attr) {
+                    case 'content':
+                        e.innerHTML = attributes.content;
+                        break;
+                    case 'class':
+                        for(let i = 0; i < attributes[attr].length; i++)
+                            e.classList.add(attributes[attr][i]);
+                        break;
+                    default:
+                        e.setAttribute(attr, attributes[attr]);
+                        break;
+                }
+            }
+            parent.appendChild(e);
+            parent.scrollTop = parent.scrollHeight;
         }
 
         socket.on('user_joined', newConsoleMessage);

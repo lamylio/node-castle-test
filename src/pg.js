@@ -22,12 +22,12 @@ this.db.query(
 `).then().catch(e => console.error("CREATE TABLE QUERY : %s", e.stack));
 
 this.db.insertMessage = (username, channel, content, event) => {
-    return this.db.query(
-        "INSERT INTO messages ('username', 'channel', 'date', 'content', 'event') VALUES ($1, $2, $3, $4, $5)", 
+    this.db.query(
+        "INSERT INTO messages (username, channel, date, content, event) VALUES ($1, $2, $3, $4, $5)", 
         [username, channel, new Date().toLocaleString(), content, event]
-    ).then(res => console.log(res.rows[0])).catch(e => console.error("INSERT MESSAGE QUERY : %s",e.stack));
+    ).then().catch(e => console.error("INSERT MESSAGE QUERY : %s",e.stack));
 } 
 
 this.db.getLastMessages = (channel, limit, callback) => {
-    this.db.query("SELECT * FROM messages WHERE channel = $1 LIMIT $2", [channel, limit], callback);
+    this.db.query("SELECT * FROM messages WHERE channel = $1 ORDER BY id DESC LIMIT $2", [channel, limit], callback);
 }

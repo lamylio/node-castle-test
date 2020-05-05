@@ -10,6 +10,7 @@ sanitizeHtml.allowedTags = ['i', 'u', 'strong', 'a'], sanitizeHtml.allowedAttrib
 const JOIN_MESSAGE = " a rejoint le salon.";
 const LEAVE_MESSAGE = " a quitté le salon.";
 
+const DATE = new Date().toLocaleString()
 io.sockets.on('connection', (socket) => {
 
     socket.on('join', (message) => {
@@ -19,7 +20,7 @@ io.sockets.on('connection', (socket) => {
         if (!authorizedChannels.includes(message.channel)) return;
         /* Leave all the channels and broadcast it */
         socket.leaveAll();
-        socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE });
+        socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE, date: DATE});
         app.sqlite.db.insertMessage(socket.username, socket.channel, LEAVE_MESSAGE, 'user_left');
         /* Sanitize the user's input (never trust users) */
         let clean_username = sanitizeHtml(message.username);
@@ -28,7 +29,7 @@ io.sockets.on('connection', (socket) => {
         socket.channel = message.channel
         /* Join the channel and emit to user + members */
         socket.join(message.channel);
-        socket.broadcast.in(message.channel).emit('user_joined', { username: clean_username, content: JOIN_MESSAGE});
+        socket.broadcast.in(message.channel).emit('user_joined', { username: clean_username, content: JOIN_MESSAGE, date: DATE});
         app.sqlite.db.insertMessage(socket.username, socket.channel, JOIN_MESSAGE, 'user_joined');
         /* Send old message to the user */
         app.sqlite.db.getLastMessages(socket.channel, 15, sendManyMessages);
@@ -46,14 +47,14 @@ io.sockets.on('connection', (socket) => {
     socket.on('message', (message) => {
         if (socket.username && socket.channel) {
             let clean_content = sanitizeHtml(message.content);
-            socket.broadcast.in(socket.channel).emit('user_message', { username: socket.username, content: clean_content });
-            socket.emit('user_message', { username: socket.username, content: clean_content, date: new Date().toLocaleString()})
+            socket.broadcast.in(socket.channel).emit('user_message', { username: socket.username, content: clean_content, date: DATE });
+            socket.emit('user_message', { username: socket.username, content: clean_content, date: DATE})
             app.sqlite.db.insertMessage(socket.username, socket.channel, clean_content, 'user_message');
         }
     })
 
     socket.on('disconnect', () => {
-        socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username });
+        socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE, date: DATE});
         app.sqlite.db.insertMessage(socket.username, socket.channel, LEAVE_MESSAGE, 'user_left');
     });
 

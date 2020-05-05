@@ -8,7 +8,7 @@ module.exports.db = new sqlite.Database(process.env.SQL_DATABASE, (err) => {
 /* Sync operations */
 this.db.serialize();
 
-if(process.env.DROP_TABLE)
+if(process.env.DROP_TABLE == true)
     this.db.run('DROP TABLE IF EXISTS messages');
 
 this.db.run(

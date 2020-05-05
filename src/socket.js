@@ -10,7 +10,8 @@ sanitizeHtml.allowedTags = ['i', 'u', 'strong', 'a'], sanitizeHtml.allowedAttrib
 const JOIN_MESSAGE = " a rejoint le salon.";
 const LEAVE_MESSAGE = " a quitté le salon.";
 
-const DATE = new Date().toLocaleString()
+const DATE = new Date().toLocaleString();
+
 io.sockets.on('connection', (socket) => {
 
     socket.on('join', (message) => {

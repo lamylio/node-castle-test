@@ -5,6 +5,15 @@
     .channels ul li{
         margin: 1em 0;
     }
+
+    body > div:nth-child(3){
+        width: 100%;
+        display: table;
+    }
+
+    .chatbox, .channels{
+        width: 100% !important;
+    }
 }
 
 
@@ -55,6 +64,7 @@
     width: 80%;
     border: 1px solid grey;
     overflow-y: auto;
+    height: 300px;
     max-height: 300px;
 }
 

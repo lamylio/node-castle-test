@@ -1,4 +1,6 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="/public/js/materialize.min.js"></script>
 <script src="/public/js/main.js"></script>
+{{#each scripts as |script|}}
 <script src="/public/js/{{script}}"></script>
+{{/each}}

@@ -4,7 +4,7 @@ socket.on('encryption', (message) => {localStorage.token = localStorage.token ||
 socket.on('user_error', showErrorMessage);
 
 function showErrorMessage(message) {
-    let html = `[${message.errorTitle}]<br>${message.errorMessage}`;
+    let html = `<div class="toast-title">${message.errorTitle}</div><br><div class="toast-content">${message.errorMessage}</div>`;
     M.toast({ html });
 }
 
@@ -26,4 +26,15 @@ function createCustomElement(type, parent, attributes) {
         }
     }
     parent.appendChild(e);
+}
+
+async function sanitize(content){
+    let d = new FormData;
+    d.append("content", content);
+    let f = await fetch('/sanitize', {
+        method: 'POST',
+        body: new URLSearchParams(d)
+    });
+    let t = await f.text();
+    return t;
 }

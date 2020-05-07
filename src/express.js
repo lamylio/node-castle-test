@@ -11,18 +11,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
     res.render('index', {
         title: "Skribb.lio",
-        script: "index.js"
+        scripts: ["index.js"]
     });
 });
 
 app.post('/sanitize', (req, res) => {
-    res.end(sanitize(req.body.username, { allowedTags: [] })) 
+    res.end(sanitize(req.body.content, { allowedTags: [] })) 
 })
 
 app.get('/game/:id?', (req, res, next) => {
     /* Check id */
     let id = sanitize(req.params.id, { allowedTags: [] }) || "unknown";
-    console.log("/game/%s", id);
     if (id.length == 36){
         let channel_exists = getChannels().some(channel => channel.id == id);
         if (channel_exists){
@@ -31,7 +30,7 @@ app.get('/game/:id?', (req, res, next) => {
             res.render('game', {
                 title: "Skribb.lio - Game",
                 id,
-                script: "game.js",
+                scripts: ["game.js", "chat.js"],
                 channel: channel
             });
             return;

@@ -1,48 +1,48 @@
-<div class="container">
 
-    <h1>{{id}}</h1>
+<h3>GAME</h3>
+<p class="flow-text">{{id}}</p>
 
-    <div class="section">
+<div class="section">
 
-        <div class="row">
+    <div class="row">
 
-            {{!-- Left pane --}}
-            <div class="col s6">
+        {{!-- Left pane --}}
+        <div class="col s4 offset-s1">
+            <ul class="chatbox">
                 <h3 class="text-center">Chat</h3>
-                <ul class="chatbox">
-                    <li class="message">Blablabla</li>
-                </ul>
-            </div>
-            {{!-- Right pane --}}
-            <div class="col s6 text-center">
-                <h3 class="">Paramètres</h3>
-                <ul>
-                    {{#if channel}}
-                        {{#each channel}}
-                            <li><b>Host: {{this.host.username}}</b></li>
+                <div class="divider spacing"></div>
+            </ul>
+            <input id="input_message" type="text" placeholder="Votre message ici..">
+            <label for="input_message">Vous pouvez utiliser les balises &lt;i&gt; b&gt; &lt;u&gt;</label>
+        </div>
+        {{!-- Right pane --}}
+        <div class="col s4 offset-s2 text-center">
+            <h3 class="">Paramètres</h3>
+            <ul>
+                {{#if channel}}
+                    {{#each channel}}
+                        <li><b>Host: {{this.host.username}}</b></li>
 
-                            <li class="divider"></li>
-                            <b>Settings:</b>
-                            {{#each this.settings as |value key|}}
-                                <li>{{key}} : {{value}}</li>
-                            {{/each}}
-
-                            <li class="divider"></li>
-                            <ul id="list_users">
-                                <b>Users:</b>
-                                {{#with this.users as |user|}}
-                                    {{#each user}}
-                                        <li>{{this.username}}</li>
-                                    {{/each}}
-                                {{/with}}
-                            </ul>
-                            
-
+                        <li class="divider"></li>
+                        <b>Settings:</b>
+                        {{#each this.settings as |value key|}}
+                            <li>{{key}} : {{value}}</li>
                         {{/each}}
-                    {{/if}}
-                </ul>
-            </div>
 
+                        <li class="divider"></li>
+                        <ul id="list_users">
+                            <b>Users:</b>
+                            {{#with this.users as |user|}}
+                                {{#each user}}
+                                    <li name="{{this.username}}">{{this.username}}</li>
+                                {{/each}}
+                            {{/with}}
+                        </ul>
+                        
+
+                    {{/each}}
+                {{/if}}
+            </ul>
         </div>
 
     </div>

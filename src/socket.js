@@ -4,6 +4,10 @@ const uuid = require('uuid');
 
 let channels = [];
 
+module.exports.getChannels = () => {
+    return channels;
+}
+
 io.sockets.on('connection', (socket) => {
 
     socket.uuid = uuid.v4();
@@ -123,5 +127,3 @@ io.sockets.on('connection', (socket) => {
         console.log('------');
     });
 });
-
-module.exports = {channels}

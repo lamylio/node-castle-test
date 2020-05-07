@@ -1,5 +1,5 @@
 const {app, sanitize} = require('../app.js');
-const {channels} = require('./socket.js');
+let { getChannels } = require('./socket.js');
 
 
 let bodyParser = require('body-parser');
@@ -22,15 +22,17 @@ app.post('/sanitize', (req, res) => {
 app.get('/game/:id?', (req, res, next) => {
     /* Check id */
     let id = sanitize(req.params.id, { allowedTags: [] }) || "unknown";
+    console.log("/game/%s", id);
     if (id.length == 36){
-        let channel = channels.filter(channel => channel.id == id);
-        if(channel.length > 0){
+        let channel_exists = getChannels().some(channel => channel.id == id);
+        if (channel_exists){
+            let channel = getChannels().filter(channel => channel.id == id);
             /* All is fine */
             res.render('game', {
                 title: "Skribb.lio - Game",
                 id,
                 script: "game.js",
-                channel
+                channel: channel
             });
             return;
         }

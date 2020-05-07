@@ -22,7 +22,7 @@ app.post('/sanitize', (req, res) => {
 app.get('/game/:id?', (req, res, next) => {
     /* Check id */
     let id = sanitize(req.params.id, { allowedTags: [] }) || "unknown";
-    if (id.length == 20){
+    if (id.length == 36){
         let channel = channels.filter(channel => channel.id == id);
         if(channel.length > 0){
             /* All is fine */

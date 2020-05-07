@@ -1,7 +1,19 @@
 const button_create_game = document.querySelector('#button_create_game');
-const input_username = document.querySelector('#input_username');
+const button_join_game = document.querySelector('#button_join_game');
 
-input_username.onchange = async (e) => {
+const input_username = document.querySelector('#input_username');
+const input_game_id = document.querySelector('#input_game_id');
+
+
+input_username.value = localStorage.username || "";
+input_username.focus();
+
+input_username.onchange = input_username.onfocusout = async (e) => {
+    if(input_username.value == "") {
+        input_username.value = localStorage.username || "";
+        showErrorMessage({errorTitle: "Nom d'utilisateur obligatoire", errorMessage: "Veuillez définir un nom d'utilisateur avant de vouloir jouer"});
+        return;
+    }
     let d = new FormData;
     d.append("username", input_username.value);
     let f = await fetch('/sanitize', {
@@ -12,9 +24,10 @@ input_username.onchange = async (e) => {
 }
 
 button_create_game.addEventListener('click', (e) => {
-    if(input_username.value.length > 1){
+    if (localStorage.username){
         socket.emit('create_game', {
-            username: input_username.value
+            username: input_username.value,
+            token: localStorage.token
         })
     }else{
         showErrorMessage({ 
@@ -24,31 +37,15 @@ button_create_game.addEventListener('click', (e) => {
     }
 });
 
+button_join_game.addEventListener('click', (e) => {
+    if(!input_game_id.value){
+        input_game_id.parentElement.style.display = 'block';
+        input_game_id.focus();
+    }else{
+        window.location += "game/" + input_game_id.value;
+    }
+});
+
 socket.on('game_created', (message) => {
-    
     window.location+= ("game/" + message.id);
 })
-
-
-
-
-
-function createCustomElement(type, parent, attributes) {
-    let e = document.createElement(type);
-
-    for (attr in attributes) {
-        switch (attr) {
-            case 'content':
-                e.innerHTML = attributes.content;
-                break;
-            case 'class':
-                for (let i = 0; i < attributes[attr].length; i++)
-                    e.classList.add(attributes[attr][i]);
-                break;
-            default:
-                e.setAttribute(attr, attributes[attr]);
-                break;
-        }
-    }
-    parent.appendChild(e);
-}

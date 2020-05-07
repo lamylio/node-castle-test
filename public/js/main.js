@@ -26,6 +26,7 @@ function createCustomElement(type, parent, attributes) {
         }
     }
     parent.appendChild(e);
+    return e;
 }
 
 async function sanitize(content){

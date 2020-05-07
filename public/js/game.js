@@ -7,6 +7,7 @@ input_message.addEventListener('keyup', (e) => {if(e.key == "Enter") {socket.emi
 socket.on('message', (message) => {
     let content = `<b>${message.username}</b> : ${message.content}`;
     createCustomElement('li', chatbox, { content, class: ["message"] })
+    chatbox.scrollTop = chatbox.scrollHeight;
 })
 
 /* Join / left */

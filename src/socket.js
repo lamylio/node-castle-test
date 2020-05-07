@@ -112,15 +112,13 @@ io.sockets.on('connection', (socket) => {
 
                         /* Register the joining user */
                         channel.users.push({ username: socket.username, uuid: socket.uuid});
-                        socket.emit('user_joined', { username: socket.username });
                     }
-
+                    
                     /* Join and broadcast it in the channel */
                     socket.join(message.id);
-                    socket.broadcast.in(message.id).emit('user_joined', {username: socket.username});
+                    socket.emit('message', { console: true, content: `<span style='color: darkgreen;font-weight: bold'>${socket.username} vient de débarquer !</span>` });
+                    socket.broadcast.in(message.id).emit('message', { console: true, content: `<span style='color: darkgreen;font-weight: bold'>${socket.username} vient de débarquer !</span>` });
                     socket.channel = channel.id;
-
-                    console.log(channel);
                 }else{
                     socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.join_game.not_found});
                 }
@@ -145,12 +143,16 @@ io.sockets.on('connection', (socket) => {
                 /* If there's no more user break here */
                 if(channel.users.length == 0) return;
 
-                /* Otherwise, if he was the host replace him by the next one */
+                /* Otherwise continue */
+                socket.broadcast.in(channel.id).emit('message', { console: true, content: `<span style='color: darkred;font-weight: bold'>${socket.username} nous a quitté..</span>` });
+                
+                /* If he was the host replace him by the next one */
                 if (channel.host.username == socket.username) {
                     channel.host = channel.users[0];
+                    socket.broadcast.in(channel.id).emit('message', { console: true, content: `<span style='color: orange;font-weight: bold'>${channel.host.username} est à présent l'hôte !</span>` });
                     socket.broadcast.in(channel.id).emit('host_changed', { username: channel.host.username });
                 }
-                socket.broadcast.in(channel.id).emit('user_left', {username: socket.username});
+
                 return channel;
             }
         });

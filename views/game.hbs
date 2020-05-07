@@ -21,25 +21,12 @@
             <ul>
                 {{#if channel}}
                     {{#each channel}}
-                        <li><b>Host: {{this.host.username}}</b></li>
-
                         <li class="divider"></li>
                         <b>Settings:</b>
                         {{#each this.settings as |value key|}}
                             <li>{{key}} : {{value}}</li>
                         {{/each}}
-
-                        <li class="divider"></li>
-                        <ul id="list_users">
-                            <b>Users:</b>
-                            {{#with this.users as |user|}}
-                                {{#each user}}
-                                    <li name="{{this.username}}">{{this.username}}</li>
-                                {{/each}}
-                            {{/with}}
-                        </ul>
-                        
-
+                        <li class="divider"></li>                      
                     {{/each}}
                 {{/if}}
             </ul>

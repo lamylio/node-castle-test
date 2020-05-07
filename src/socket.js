@@ -1,73 +1,109 @@
+const {io, sanitize} = require('../app.js');
 
-const app = require('../index.js');
-/* --- */
-const io = require('socket.io').listen(app.http.proxy);
-const sanitizeHtml = require('sanitize-html');
+//const DATE = new Date().toLocaleString();
 
-const authorizedChannels = ['Salon 1', 'Salon 2', 'Salon 3'];
-sanitizeHtml.allowedTags = ['i', 'u', 'strong', 'a'], sanitizeHtml.allowedAttributes = { 'a': ['href'] };
-
-const JOIN_MESSAGE = " a rejoint le salon.";
-const LEAVE_MESSAGE = " a quitté le salon.";
-
-const DATE = new Date().toLocaleString();
+let channels = [];
 
 io.sockets.on('connection', (socket) => {
 
-    socket.on('join', (message) => {
-        /* Check if user is already in */
-        if (message.channel === socket.channel) return;
-        /* Check if channel asked is authorized */
-        if (!authorizedChannels.includes(message.channel)) return;
-        if(socket.channel && socket.username && socket.username != "Inconnu"){
-            /* Leave all the channels and broadcast it */
-            socket.leaveAll();
-            socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE, date: DATE});
-            app.postgres.db.insertMessage(socket.username, socket.channel, LEAVE_MESSAGE, 'user_left');
-        }
-        /* Sanitize the user's input (never trust users) */
-        let clean_username = sanitizeHtml(message.username);
-        if(clean_username.length < 1) clean_username = "Hacker";
-        /* Save date in the socket */
-        socket.username = clean_username;
-        socket.channel = message.channel
-        
-        /* Join the channel and emit to user + members */
-        socket.join(message.channel);
-        if (socket.username != "Inconnu"){
-            socket.broadcast.in(message.channel).emit('user_joined', { username: clean_username, content: JOIN_MESSAGE, date: DATE});
-            app.postgres.db.insertMessage(socket.username, socket.channel, JOIN_MESSAGE, 'user_joined');
-        }
-        app.postgres.db.getLastMessages(socket.channel, 15, sendManyMessages);
-        
-        console.log('%s a rejoint le channel : %s', message.username, message.channel);
-    });
+    socket.on('create_game', message => {
+        /* Need an username to create a game */
+        if (!message.username) socket.emit('user_error', {errorTitle: "Nom d'utilisateur introuvable", errorMessage: "Veuillez définir un nom d'utilisateur avant de vouloir jouer"});
+        else{
+            socket.username = socket.username || sanitize(message.username, { allowedTags: [] });;
 
-    function sendManyMessages(err, messages){
-        if(err) return;
-        messages = messages.rows; 
-        for (let i = messages.length-1; i >= 0; i--){
-            let message = messages[i];
-            socket.emit(message.event, message);
-        }
-    }
+            /* Register the channel */
+            channels.push({
+                host: socket.username, 
+                id: socket.id, 
+                users: [],
+                settings: {
+                    timer: 90
+                },
+                locked: true
+            });
+            /* Notify the user and send the link (id) of the game */
+            socket.emit('game_created', {id: socket.id, username: socket.username});
+            socket.join(socket.id);
 
-    socket.on('message', (message) => {
-        if (socket.username && socket.channel) {
-            let clean_content = sanitizeHtml(message.content);
-            socket.broadcast.in(socket.channel).emit('user_message', { username: socket.username, content: clean_content, date: DATE });
-            socket.emit('user_message', { username: socket.username, content: clean_content, date: DATE})
-            app.postgres.db.insertMessage(socket.username, socket.channel, clean_content, 'user_message');
-        }
-    })
-
-    socket.on('disconnect', () => {
-        if (socket.username && socket.channel && socket.username != "Inconnu") {
-            socket.broadcast.in(socket.channel).emit('user_left', { username: socket.username, content: LEAVE_MESSAGE, date: DATE});
-            app.postgres.db.insertMessage(socket.username, socket.channel, LEAVE_MESSAGE, 'user_left');
+            console.log("Game %s created by %s and locked.", socket.id, socket.username);
+            console.log('------');
         }
     });
 
+    socket.on('join_game', message => {
+        /* Need an username to join a game */
+        if (!message.username) socket.emit('user_error', { errorTitle: "Nom d'utilisateur introuvable", errorMessage: "Veuillez définir un nom d'utilisateur avant de vouloir jouer" });
+        else {
+            socket.username = socket.username || sanitize(message.username, { allowedTags: [] });;
+            /* Check the id is the right form */
+            let id = sanitize(message.id, { allowedTags: [] }) || "unknown";
+            if (id.length == 20) {
+                /* Check if the channel with that id exists */
+                let exists = channels.some(channel => channel.id == id);
+                if(exists){
+                    /* Catch it */
+                    let channel = channels.filter(channel => channel.id == id);
+                    channel = channel[0];
+
+                    /* Check if the username is already taken */
+                    let same_username_exists = channel.users.some(user => user == socket.username);
+                    if (same_username_exists){
+                        let same_username = channel.users.filter(user => user == socket.username);
+                        socket.username = socket.username +  " (" + same_username.length + ")";
+                        console.log("Username already taken, becomes %s", socket.username);
+                    }
+
+                    /* Register the joining user */
+                    channel.users.push(socket.username);
+                    /* Unlock the channel */
+                    channel.locked = false;
+
+                    /* Join and broadcast it in the cannel */
+                    socket.join(message.id);
+                    socket.broadcast.in(message.id).emit('user_joined', {username: socket.username});
+                    socket.inGame = true;
+
+                    console.log("%s joined the game %s", socket.username, message.id);
+                    console.log(channel);
+                    console.log('------');
+                }else{
+                    socket.emit('user_error', { errorTitle: "Partie introuvable", errorMessage: ("La partie avec l'identifiant "  + message.id + " n'existe pas..") });
+                }
+            }else{
+                socket.emit('user_error', {errorTitle: "Mauvais identifiant", errorMessage: ("L'identifiant " + message.id + " ne respecte pas le format." )});
+            }
+        }
+    });
+
+    socket.on('disconnect', message => {
+        /* If the user doesn't exists, skip */
+        if (!socket.username) return;
+        console.log("%s disconnect", socket.username);
+        /* As he leaves, quit all channel */
+        socket.leaveAll();
+        /* Remove the channel by filtering it with a custom func */
+        channels = channels.filter((channel) => {
+            if(channel.locked) return channel;
+            else{
+                /* Filter to remove the disconnected user */
+                channel.users = channel.users.filter(user => user != socket.username);
+
+                /* If there's no more user break here */
+                if(channel.users.length == 0) return;
+
+                /* Otherwise, if he was the host replace him by the next one */
+                if (channel.host == socket.username) {
+                    channel.host = channel.users[0] || "";
+                    console.log("%s is the new host.", channel.host);
+                }
+                return channel;
+            }
+        });
+        console.log("Channels are now as :");
+        console.log(channels);
+        console.log('------');
+    });
 });
 
-module.exports = {io, authorizedChannels}
+module.exports = {channels}

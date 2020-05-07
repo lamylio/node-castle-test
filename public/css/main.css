@@ -8,3 +8,35 @@ body{
     margin: auto;
     text-align: center;
 }
+
+.margined {
+    margin: 5% auto;
+}
+
+.bordered{
+    border: 1px solid black;
+}
+
+.spacing {
+    display: block;
+    margin: 1em auto;
+}
+
+/* ----- Materialize.css ----- */
+
+/* label color */
+.input-field label {
+    font-weight: bold;
+    color: #000 !important;
+}
+
+/* label focus color */
+.input-field input[type=text]:focus + label {
+    color: #000 !important;
+}
+
+/* label underline focus color */
+.input-field input[type=text]:focus {
+    border-bottom: 1px solid #000 !important;
+    box-shadow: 0 1px 0 0 #000 !important;
+}

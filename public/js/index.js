@@ -13,7 +13,7 @@ input_username.onchange = input_username.onfocusout = (e) => {
         input_username.value = localStorage.username || "";
         showErrorMessage({ errorTitle: "Nom d'utilisateur obligatoire", errorMessage: "Vous devez définir un nom d'utilisateur pour pouvoir jouer."});
     }else{
-        localStorage.username = sanitize(input_username.value);
+        sanitize(input_username.value, (u) => {localStorage.username = u});
     }
 }
 

@@ -29,13 +29,14 @@ function createCustomElement(type, parent, attributes) {
     return e;
 }
 
-async function sanitize(content){
+async function sanitize(content, callback){
     let d = new FormData;
     d.append("content", content);
     let f = await fetch('/sanitize', {
         method: 'POST',
         body: new URLSearchParams(d)
     });
-    let t = await f.text();
-    return t;
+    let r = await f.text() || "Inconnu";
+    callback(r);
+    return r;
 }

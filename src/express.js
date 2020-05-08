@@ -15,6 +15,15 @@ app.get('/', (req, res) => {
     });
 });
 
+app.get('/drawbox/:id?', (req, res) => {
+    let id = sanitize(req.params.id, { allowedTags: [] }) || "unknown";
+    res.render("drawbox", {
+        title: "Skribbl.io - Drawbox",
+        scripts: ["draw.js"],
+        id
+    });
+});
+
 app.post('/sanitize', (req, res) => {
     res.end(sanitize(req.body.content, { allowedTags: [] })) 
 })
@@ -30,7 +39,7 @@ app.get('/game/:id?', (req, res, next) => {
             res.render('game', {
                 title: "Skribb.lio - Game",
                 id,
-                scripts: ["game.js", "chat.js"],
+                scripts: ["chat.js", "game.js", "draw.js"],
                 channel: channel
             });
             return;

@@ -55,14 +55,21 @@ io.sockets.on('connection', (socket) => {
             socket.uuid = sanitize(message.token, { allowedTags: [] }) || uuid.v4();
             /* Register the channel */
             let game_id = uuid.v5(socket.id, socket.uuid);
-            let host = { username: socket.username, uuid: socket.uuid };
+            let host = { username: socket.username, uuid: socket.uuid, points: 0 };
             channels.push({
+                index: channels.length,
                 id: game_id, 
                 host: host,
                 users: [host],
                 settings: {
                     timer: 90,
                     rounds: 3
+                },
+                game: {
+                    started: true,
+                    round: 0,
+                    drawer: "",
+                    drawbox: []
                 },
                 locked: true
             });
@@ -111,7 +118,7 @@ io.sockets.on('connection', (socket) => {
                         }
 
                         /* Register the joining user */
-                        channel.users.push({ username: socket.username, uuid: socket.uuid});
+                        channel.users.push({ username: socket.username, uuid: socket.uuid, points: 0});
                     }
                     
                     /* Join and broadcast it in the channel */
@@ -119,6 +126,8 @@ io.sockets.on('connection', (socket) => {
                     socket.emit('message', { console: true, content: `<span style='color: darkgreen;font-weight: bold'>${socket.username} vient de débarquer !</span>` });
                     socket.broadcast.in(message.id).emit('message', { console: true, content: `<span style='color: darkgreen;font-weight: bold'>${socket.username} vient de débarquer !</span>` });
                     socket.channel = channel.id;
+                    /* Retrieve the drawing if game already started */
+                    if(channel.game.started) socket.emit('retrieveDrawing', channel.game.drawbox);
                 }else{
                     socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.join_game.not_found});
                 }
@@ -178,5 +187,52 @@ io.sockets.on('connection', (socket) => {
                 socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.identity, errorMessage: ERROR_MESSAGES.send_message.identity });
             }
         }
+    });
+
+    /* ----- DRAWING EVENT ----- */
+
+    socket.on('retrieveDrawing', (message) => {
+        if (!message.username || !message.token || !message.channel) return;
+        let username = sanitize(message.username, { allowedTags: [] });
+        let token = sanitize(message.token, { allowedTags: [] });
+        let channel_id = sanitize(message.channel, { allowedTags: [] });
+
+        if (channels.some(chan => chan.id == channel_id)) {
+            let channel = channels.filter(chan => chan.id == channel_id)[0];
+            if (!channel.game.started) socket.emit('user_error', { errorTitle: "La partie n'a pas commencé", errorMessage: "Il n'y a aucun dessin à récupérer du coup." });
+            else{
+                if (channel.users.some(u => u.username == username && u.uuid == token)) {
+                    socket.emit('retrieveDrawing', channel.game.drawbox);   
+                }
+            }
+
+        }
+    })
+
+    socket.on('drawing', (message) => {
+        if (!message.username || !message.token || !message.channel) return;
+        let username = sanitize(message.username, { allowedTags: [] });
+        let token = sanitize(message.token, { allowedTags: [] });
+        let channel_id = sanitize(message.channel, { allowedTags: [] });
+        
+        if (channels.some(chan => chan.id == channel_id)){
+            let channel = channels.filter(chan => chan.id == channel_id);
+            if(channel[0].users.some(u => u.username == username && u.uuid == token)){
+                let draw = {
+                    x0: message.x0,
+                    y0: message.y0,
+                    x1: message.x1,
+                    y1: message.y1,
+                    color: message.color
+                }
+                channels[channel[0].index].game.drawbox.push(draw);
+                socket.broadcast.in(channel[0].id).emit('drawing', draw);
+            } else {
+                socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.identity, errorMessage: ERROR_MESSAGES.send_message.identity });
+            }
+        }else{
+            socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.bad_game_id, errorMessage: ERROR_MESSAGES.join_game.not_found });
+        }          
+        
     });
 });

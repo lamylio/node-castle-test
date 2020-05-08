@@ -7,16 +7,21 @@
     <div class="row">
 
         {{!-- Left pane --}}
-        <div class="col s12 m6 l4 offset-l1">
+        <div class="col s12 m5 l4 offset-l1 chatzone">
+            <h3 class="text-center">Chat</h3>
+            <div class="divider spacing"></div>
             <ul class="chatbox">
-                <h3 class="text-center">Chat</h3>
-                <div class="divider spacing"></div>
+
             </ul>
             <input id="input_message" type="text" placeholder="Votre message ici..">
             <label for="input_message">Vous pouvez utiliser les balises &lt;i&gt; &lt;b&gt; &lt;u&gt;</label>
         </div>
+        <div class="col s12 m6 l7 offset-m1 offset-l1 drawzone" style="display:none">
+            <!-- Here comes the canva when game_start -->
+            <canvas class="drawbox"></canvas>
+        </div>
         {{!-- Right pane --}}
-        <div class="col s12 m6 l4 offset-l2 text-center">
+        <div class="col s12 m6 l4 offset-l2 text-center settingszone">
             <h3 class="">Paramètres</h3>
             <ul>
                 {{#if channel}}

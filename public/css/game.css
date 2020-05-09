@@ -1,0 +1,120 @@
+body::before{
+    content: "";
+    top:0;
+    left:0;
+    width: 100%;
+    position: absolute;
+    background: url(https://i.pinimg.com/originals/97/4b/b7/974bb782ad079dfc327863bf5805f6b1.png) no-repeat;
+    background-size: cover;
+    /*background-blend-mode: difference;*/
+}
+
+/* ----- GRID ----- */
+
+.grid-game{
+    display: grid;
+    grid-template-areas:    "drawzone . chatzone . userzone" "palette . chat-input . userzone";
+    grid-template-columns: 2fr 5% 2fr 5% 1fr;
+    margin: 2em;
+}
+
+@media screen and (max-width: 500px){
+    .grid-game{
+        grid-template-areas:  "userzone" "chatzone" "chat-input" "drawzone" "palette";
+        grid-template-columns: 100%;
+        margin: 0;
+    }
+}
+
+/* ----- Userzone ----- */
+
+.userzone{
+    grid-area: userzone;
+    border: 1px solid black;
+}
+
+/* ----- Chatbox ----- */
+
+.chatzone{
+    border: 1px solid black;
+    max-height: 60vh;
+    height: 60vh;
+    grid-area: chatzone;
+}
+
+.chatbox{
+    height: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+    padding-bottom: 1em;
+}
+
+
+::-webkit-scrollbar {
+    width: 3px;
+}
+
+::-webkit-scrollbar-track {
+    background: #888 ;
+}
+
+::-webkit-scrollbar-thumb {
+    background: black;
+}
+
+.chatbox .message{
+    padding: .3em 2em;
+    text-align: justify !important;
+}
+
+.chat-input{
+    grid-area: chat-input;
+}
+
+#input_message::placeholder{
+    color: black;
+}
+
+/* ----- Drawbox ----- */
+
+.drawzone{
+    padding: 0 !important;
+    border: 1px solid black;
+    max-height: 60vh;
+    height: 60vh;
+    grid-area: drawzone;
+}
+
+.drawbox{
+    width: 100%;
+    height: 100%;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background: white;
+}
+
+/* ----- Palette ----- */
+
+.palette{
+    padding: 1em !important;
+    grid-area: palette;
+}
+
+.colorzone{
+    
+}
+
+.colors{
+    margin: .1em;
+}
+
+.color {
+    display: inline-block;
+    height: 24px;
+    width: 24px;
+    margin: 2px;
+    border: 1px solid black;
+}
+

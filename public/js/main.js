@@ -16,6 +16,9 @@ function createCustomElement(type, parent, attributes) {
             case 'content':
                 e.innerHTML = attributes.content;
                 break;
+            case 'backgroundColor':
+                e.style.backgroundColor = attributes.backgroundColor;
+                break;
             case 'class':
                 for (let i = 0; i < attributes[attr].length; i++)
                     e.classList.add(attributes[attr][i]);
@@ -39,4 +42,18 @@ async function sanitize(content, callback){
     let r = await f.text() || "Inconnu";
     callback(r);
     return r;
+}
+
+function timeout(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+function throttle(callback, delay) {
+    var previousCall = new Date().getTime();
+    return function () {
+        var time = new Date().getTime();
+
+        if ((time - previousCall) >= delay) {
+            previousCall = time;
+            callback.apply(null, arguments);
+        }
+    };
 }

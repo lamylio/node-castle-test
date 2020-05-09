@@ -11,7 +11,7 @@ input_username.focus();
 input_username.onchange = input_username.onfocusout = (e) => {
     if(input_username.value == "") {
         input_username.value = localStorage.username || "";
-        showErrorMessage({ errorTitle: "Nom d'utilisateur obligatoire", errorMessage: "Vous devez définir un nom d'utilisateur pour pouvoir jouer."});
+        throttle(showErrorMessage({ errorTitle: "Nom d'utilisateur obligatoire", errorMessage: "Vous devez définir un nom d'utilisateur pour pouvoir jouer."}),3000);
     }else{
         sanitize(input_username.value, (u) => {localStorage.username = u});
     }
@@ -23,7 +23,7 @@ button_create_game.addEventListener('click', (e) => {
             username: input_username.value,
             token: localStorage.token
         })
-    }else showErrorMessage({ errorTitle: "Nom d'utilisateur introuvable", errorMessage: "Vous devez définir un nom d'utilisateur pour créer une nouvelle partie."});
+    }else throttle(showErrorMessage({ errorTitle: "Nom d'utilisateur introuvable", errorMessage: "Vous devez définir un nom d'utilisateur pour créer une nouvelle partie."}), 3000);
 });
 
 button_join_game.addEventListener('click', (e) => {
@@ -31,11 +31,13 @@ button_join_game.addEventListener('click', (e) => {
         input_game_id.parentElement.style.display = 'block';
         input_game_id.focus();
     }else{
-        if(input_game_id.value.length == 36) window.location += "game/" + input_game_id.value;
-        else showErrorMessage({errorTitle: "Mauvais identifiant de jeu", errorMessage: "L'identifiant ne respecte pas le format requis."});
+        if(input_game_id.value.length == 36){
+            socket.emit('check_game', {id: input_game_id.value});
+        }
+        else throttle(showErrorMessage({errorTitle: "Mauvais identifiant de jeu", errorMessage: "L'identifiant ne respecte pas le format requis."}),3000);
     }
 });
 
-socket.on('game_created', (message) => {
-    window.location+= ("game/" + message.id);
+socket.on('game_redirect', (message) =>{
+    window.location += "game/" + message.id;
 });

@@ -60,7 +60,7 @@ io.sockets.on('connection', (socket) => {
                 index: channels.length,
                 id: game_id, 
                 host: host,
-                users: [host],
+                users: [],
                 settings: {
                     timer: 90,
                     rounds: 3
@@ -74,7 +74,7 @@ io.sockets.on('connection', (socket) => {
                 locked: true
             });
             /* Notify the user and send the link (id) of the game */
-            socket.emit('game_created', { id: game_id, token: host.uuid});
+            socket.emit('game_redirect', { id: game_id, token: host.uuid});
             socket.join(game_id);
         }
     });
@@ -99,28 +99,27 @@ io.sockets.on('connection', (socket) => {
                     let channel = channels.filter(channel => channel.id == id);
                     channel = channel[0];
 
-                    /* Unlock the channel when the host join (I could use uuid but..) */
-                    if(channel.host.uuid == socket.uuid){
-                        channel.locked = false;
-                    }else{
-                        /* If the user isn't the host then  */
-                        /* Check if the username is already taken */
-                        let same_username_exists = channel.users.some(user => user.username == socket.username);
-                        if (same_username_exists) {
-                            let same_token_exists = channel.users.some(user => user.uuid == socket.uuid);
-                            if (same_token_exists) {
-                                socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.token_already_exists, errorMessage: ERROR_MESSAGES.join_game.token_taken });
-                                return;
-                            }
-                            let same_username = channel.users.filter(user => user.username == socket.username);
-                            socket.username = socket.username + " (" + same_username.length + ")";
-                            socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.already_taken, errorMessage: ERROR_MESSAGES.join_game.taken });
+                    /* Check if the username is already taken */
+                    let same_username_exists = channel.users.some(user => user.username == socket.username);
+                    if (same_username_exists) {
+                        let same_token_exists = channel.users.some(user => user.uuid == socket.uuid);
+                        if (same_token_exists) {
+                            socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.token_already_exists, errorMessage: ERROR_MESSAGES.join_game.token_taken });
+                            return;
                         }
-
-                        /* Register the joining user */
-                        channel.users.push({ username: socket.username, uuid: socket.uuid, points: 0});
+                        let same_username = channel.users.filter(user => user.username.split(socket.username)[0] == "");
+                        socket.username = socket.username + " (" + same_username.length + ")";
+                        socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.already_taken, errorMessage: ERROR_MESSAGES.join_game.taken });
                     }
                     
+                    /* Unlock the channel when the host join */
+                    if (channel.host.uuid == socket.uuid) {
+                        channel.locked = false;
+                    }
+                    
+                    /* Register the joining user */
+                    channel.users.push({ username: socket.username, uuid: socket.uuid, points: 0});
+
                     /* Join and broadcast it in the channel */
                     socket.join(message.id);
                     socket.emit('message', { console: true, content: `<span style='color: darkgreen;font-weight: bold'>${socket.username} vient de débarquer !</span>` });
@@ -167,22 +166,37 @@ io.sockets.on('connection', (socket) => {
         });
     });
 
+    socket.on('check_game', (message) => {
+        if (!message.id) return;
+        let id = sanitize(message.id, { allowedTags: [] }) || "unknown";
+        if (id.length == 36) {
+            /* Check if the channel with that id exists */
+            let exists = channels.some(channel => channel.id == id);
+            if (exists) {
+                socket.emit('game_redirect', { id });
+            } else {
+                socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.join_game.not_found });
+            }
+        }else {
+            socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.bad_game_id, errorMessage: ERROR_MESSAGES.join_game.format });
+        }
+
+    });
+
     /* ----- CHAT EVENTS ----- */
 
     socket.on('send_message', (message) => {
         if(!socket.username || !socket.uuid || !socket.channel) return;
 
-        if (!message.username) socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.missing_username, errorMessage: ERROR_MESSAGES.send_message.username});
-        else if (!message.token) socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.missing_token, errorMessage: ERROR_MESSAGES.send_message.token});
+        if (!message.token) socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.missing_token, errorMessage: ERROR_MESSAGES.send_message.token});
         else if (!message.content) socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.missing_content, errorMessage: ERROR_MESSAGES.send_message.content });
         else{
-            let username = sanitize(message.username, {allowedTags: []});
             let token = sanitize(message.token, { allowedTags: [] });
             let content = sanitize(message.content, {allowedTags: ['b', 'i', 'u']});
 
-            if(socket.username == username && socket.uuid == token){
-                socket.emit('message', {username, content});
-                socket.broadcast.in(socket.channel).emit('message', {username, content});
+            if(socket.uuid == token){
+                socket.emit('message', {username: socket.username, content});
+                socket.broadcast.in(socket.channel).emit('message', { username: socket.username, content});
             }else{
                 socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.identity, errorMessage: ERROR_MESSAGES.send_message.identity });
             }
@@ -192,8 +206,8 @@ io.sockets.on('connection', (socket) => {
     /* ----- DRAWING EVENT ----- */
 
     socket.on('retrieveDrawing', (message) => {
-        if (!message.username || !message.token || !message.channel) return;
-        let username = sanitize(message.username, { allowedTags: [] });
+        if (!socket.username || !socket.uuid || !socket.channel) return;
+        if (!message.token || !message.channel) return;
         let token = sanitize(message.token, { allowedTags: [] });
         let channel_id = sanitize(message.channel, { allowedTags: [] });
 
@@ -201,7 +215,7 @@ io.sockets.on('connection', (socket) => {
             let channel = channels.filter(chan => chan.id == channel_id)[0];
             if (!channel.game.started) socket.emit('user_error', { errorTitle: "La partie n'a pas commencé", errorMessage: "Il n'y a aucun dessin à récupérer du coup." });
             else{
-                if (channel.users.some(u => u.username == username && u.uuid == token)) {
+                if (channel.users.some(u => u.username == socket.username && u.uuid == token)) {
                     socket.emit('retrieveDrawing', channel.game.drawbox);   
                 }
             }
@@ -210,19 +224,21 @@ io.sockets.on('connection', (socket) => {
     })
 
     socket.on('drawing', (message) => {
-        if (!message.username || !message.token || !message.channel) return;
-        let username = sanitize(message.username, { allowedTags: [] });
+        if (!socket.username || !socket.uuid || !socket.channel) return;
+        if (!message.token || !message.channel) return;
         let token = sanitize(message.token, { allowedTags: [] });
         let channel_id = sanitize(message.channel, { allowedTags: [] });
         
         if (channels.some(chan => chan.id == channel_id)){
             let channel = channels.filter(chan => chan.id == channel_id);
-            if(channel[0].users.some(u => u.username == username && u.uuid == token)){
+            if(channel[0].users.some(u => u.uuid == token)){
                 let draw = {
                     x0: message.x0,
                     y0: message.y0,
                     x1: message.x1,
                     y1: message.y1,
+                    size: message.size,
+                    tool: message.tool,
                     color: message.color
                 }
                 channels[channel[0].index].game.drawbox.push(draw);
@@ -231,7 +247,8 @@ io.sockets.on('connection', (socket) => {
                 socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.identity, errorMessage: ERROR_MESSAGES.send_message.identity });
             }
         }else{
-            socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.bad_game_id, errorMessage: ERROR_MESSAGES.join_game.not_found });
+            return;
+            //socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.bad_game_id, errorMessage: ERROR_MESSAGES.join_game.not_found });
         }          
         
     });

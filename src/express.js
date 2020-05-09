@@ -38,9 +38,10 @@ app.get('/game/:id?', (req, res, next) => {
             /* All is fine */
             res.render('game', {
                 title: "Skribb.lio - Game",
-                id,
                 scripts: ["chat.js", "game.js", "draw.js"],
-                channel: channel
+                styles: ["game.css"],
+                channel: channel,
+                id,
             });
             return;
         }

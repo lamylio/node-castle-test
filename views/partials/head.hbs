@@ -3,6 +3,9 @@
 <title>{{title}}</title>
 <link type="text/css" rel="stylesheet" href="/public/css/materialize.min.css" media="screen,projection" />
 <link type="text/css" rel="stylesheet" href="/public/css/main.css">
+{{#each styles as |style|}}
+<link type="text/css" rel="stylesheet" href="/public/css/{{style}}">
+{{/each}}
 {{#if id }}
 <script>const game_id = "{{id}}";</script>
 {{/if}}

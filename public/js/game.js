@@ -5,7 +5,7 @@ const settingszone = document.querySelector('.settingszone');
 
 /* Join / left */
 socket.emit('join_game', {id: game_id, username: localStorage.username, token: localStorage.token});
-if(!localStorage.username) setTimeout(askUsername, 3500);
+if(!localStorage.username) setTimeout(askUsername, 10000);
 
 function askUsername(){
     if (localStorage.username) return;
@@ -13,10 +13,6 @@ function askUsername(){
     sanitize(u, (uS) => { localStorage.username = uS });
     window.location.reload();
 }
-
-chatzone.classList.remove('offset-l1');
-settingszone.style.display = "none";
-drawzone.style.display = "block";
 
 /* Game start */
 socket.on('game_start', (message) => {

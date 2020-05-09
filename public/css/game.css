@@ -18,6 +18,17 @@ body::before{
     margin: 2em;
 }
 
+@media screen and (max-width: 1000px){
+    .grid-game{
+        grid-template-areas:    "userzone chatzone"
+                                "chat-input chat-input"
+                                "drawzone drawzone"
+                                "palette palette";
+        grid-template-columns: 1fr 1fr;
+        margin: 0;
+    }
+}
+
 @media screen and (max-width: 500px){
     .grid-game{
         grid-template-areas:  "userzone" "chatzone" "chat-input" "drawzone" "palette";

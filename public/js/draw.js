@@ -39,7 +39,7 @@ drawbox.addEventListener('mousemove', throttle(onMouseMove, 20), false);
 drawbox.addEventListener('touchstart', onMouseDown, false);
 drawbox.addEventListener('touchend', onMouseUp, false);
 drawbox.addEventListener('touchcancel', onMouseUp, false);
-drawbox.addEventListener('touchmove', throttle(onMouseMove, 25), false);
+drawbox.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 
 window.onwheel = throttle(onMouseWheel, 25);
 window.onresize = changeBoxSize;
@@ -68,22 +68,25 @@ socket.on('retrieveDrawing', (draw) => {
 /* Functions triggered by events */
 
 function onMouseDown(e) {
+    e.preventDefault();
     drawing = true;
-    current.x = e.offsetX || e.touches[0].offsetX;
-    current.y = e.offsetY || e.touches[0].offsetY;
+    current.x = e.offsetX || e.touches[0].clientX - drawbox.offsetLeft;
+    current.y = e.offsetY || e.touches[0].clientY - drawbox.offsetTop + window.scrollY;
 }
 
 function onMouseUp(e) {
     if (!drawing || !canDraw) { return; }
+    e.preventDefault();
     drawing = false;
-    drawLine(current.x, current.y, e.offsetX || e.touches[0].offsetX, e.offsetY || e.touches[0].offsetY, current.color, current.size, current.tool, true);
+    drawLine(current.x, current.y, e.offsetX || e.touches[0].clientX - drawbox.offsetLeft, e.offsetY || e.touches[0].clientY - drawbox.offsetTop + window.scrollY, current.color, current.size, current.tool, true);
 }
 
 function onMouseMove(e) {
     if (!drawing || !canDraw) { return; }
-    drawLine(current.x, current.y, e.offsetX || e.touches[0].offsetX, e.offsetY || e.touches[0].offsetY, current.color, current.size, current.tool, true);
-    current.x = e.offsetX || e.touches[0].offsetX;
-    current.y = e.offsetY || e.touches[0].offsetY;
+    e.preventDefault();
+    drawLine(current.x, current.y, e.offsetX || e.touches[0].clientX - drawbox.offsetLeft, e.offsetY || e.touches[0].clientY - drawbox.offsetTop + window.scrollY, current.color, current.size, current.tool, true);
+    current.x = e.offsetX || e.touches[0].clientX - drawbox.offsetLeft;
+    current.y = e.offsetY || e.touches[0].clientY - drawbox.offsetTop + window.scrollY;
 }
 
 function drawLine(x0, y0, x1, y1, color, size, tool, emit) {
@@ -132,7 +135,6 @@ function onColorUpdate(e) {
 function onMouseWheel(e){
     wUp = e.wheelDelta > 0 ? true : false;
     if(wUp){
-        if(current.size == 12) return;
         current.size+=1;
     }else{
         if(current.size == 1) return; 

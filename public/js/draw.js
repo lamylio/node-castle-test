@@ -70,15 +70,17 @@ range_pen_size.onchange = (e) => {
 
 /* Socket */
 
-socket.on('retrieveDrawing', (message) => {
-    if(!message.url) return;
+socket.on('retrieveDrawing', throttle(retrieve, 50));
+
+function retrieve(message){
+    if (!message.url) return;
     console.log('retrieve');
     let i = new Image();
     i.src = message.url;
     i.onload = function () {
         context.drawImage(i, 0, 0, drawbox.width, drawbox.height);
     }
-});
+}
 
 
 /* ----- */
@@ -129,6 +131,7 @@ function onToolUpdate(e){
 }
 
 function changeBoxSize(){
+    if (drawbox.width == drawbox.parentElement.offsetWidth && drawbox.height == drawbox.parentElement.offsetHeight) return;
     drawbox.width = drawbox.parentElement.offsetWidth;
     drawbox.height = drawbox.parentElement.offsetHeight;
     socket.emit('retrieveDrawing', {
@@ -145,7 +148,7 @@ function onMouseDown(e) {
     e.preventDefault();
     drawing = true;
     current.x = e.offsetX || e.touches[0].clientX - drawbox.offsetLeft;
-    current.y = e.offsetY || e.touches[0].clientY - drawbox.offsetTop + window.scrollY;
+    current.y = e.offsetY || e.touches[0].clientY - drawzone.offsetTop + window.pageYOffset;
 }
 
 function onMouseUp(e) {
@@ -157,7 +160,7 @@ function onMouseUp(e) {
 function onMouseMove(e) {
     if (!drawing || !canDraw || e.target.hasAttribute('disabled')) { return; }
     e.preventDefault();
-    const x1 = e.offsetX || e.touches[0].clientX - drawbox.offsetLeft, y1 = e.offsetY || e.touches[0].clientY - drawbox.offsetTop + window.scrollY;
+    const x1 = e.offsetX || e.touches[0].clientX - drawzone.offsetLeft, y1 = e.offsetY || e.touches[0].clientY - drawzone.offsetTop + window.pageYOffset;
     drawLine(
         current.x, 
         current.y, 

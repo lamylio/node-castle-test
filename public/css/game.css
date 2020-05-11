@@ -14,7 +14,7 @@ body::before{
 
 .grid-game{
     display: grid;
-    grid-template-areas:    "userzone drawzone chatzone" "palette palette palette";
+    grid-template-areas:    "userzone drawzone chatzone" ". palette .";
     grid-template-columns: 1fr 600px 1fr;
     grid-template-rows: 600px auto;
     grid-gap: 1em;
@@ -22,22 +22,32 @@ body::before{
     justify-content: center;
 }
 
-/* Tablet */
+/* Laptop */
 @media screen and (max-width: 1200px){
 
     .grid-game{
         grid-template-areas:    "drawzone chatzone" "palette userzone";
-        grid-template-columns: 600px auto;
-        grid-template-rows: 600px auto;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
         margin: 1em 0;
     }
 }
-/* Mobile */
+
+/* Tablet */
 @media screen and (max-width: 950px){
     .grid-game{
         grid-template-areas: "palette" "drawzone" "chatzone" "userzone" ;
-        grid-template-columns: min(600px,100%);
-        grid-template-rows: auto min(600px,100%) auto;
+        grid-template-columns: 80%;
+        grid-template-rows: auto;
+    }
+}
+
+/* Mobile */
+@media screen and (max-width: 550px){
+    .grid-game{
+        grid-template-areas: "palette" "drawzone" "chatzone" "userzone" ;
+        grid-template-columns: 90%;
+        grid-template-rows: auto;
     }
 }
 
@@ -87,16 +97,20 @@ body::before{
 
 .drawzone{
     margin: unset !important;
-    padding: 0 !important;
+    padding-top: 100% !important;
+    position: relative;
     grid-area: drawzone;
-    min-height: 400px;
-    min-width: 400px;
     max-height: 100%;
     max-width: 100%;
 }
 
 .drawbox{
     background: white;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
 }
 
 /* ----- Palette ----- */
@@ -131,13 +145,13 @@ body::before{
     font-size: 28px;
 }
 
-.palette .card{
+/* .palette .card{
     display: block;
     width: fit-content;
     margin: auto;
     padding: 0px 5em;
     margin: .5em auto;
-}
+} */
 
 /* User */
 

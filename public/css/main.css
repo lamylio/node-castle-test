@@ -1,3 +1,5 @@
+@import 'skribblicons.css';
+
 html{
     font-family: sans-serif;
     padding: 1em;
@@ -24,16 +26,31 @@ body{
     margin: 1em auto;
 }
 
+/* ---- */
+
+::-webkit-scrollbar {
+    width: 3px;
+}
+
+::-webkit-scrollbar-track {
+    background: #888 ;
+}
+
+::-webkit-scrollbar-thumb {
+    background: black;
+}
+
 /* ----- Materialize.css ----- */
 
 #toast-container{
-    margin: auto;
+    position: absolute;
     max-width: 500px;
-    position: relative;
-    top: unset !important;
-    right: unset !important;
+    top: 2em !important;
+    right: 0 !important;
+    left: 0 !important;
+    bottom: unset !important;
+    margin: auto;
     text-align: center;
-    bottom: 100px;
 }
 
 .toast{
@@ -64,19 +81,3 @@ body{
     padding: auto 1em;
 }
 
-/* label color */
-.input-field label {
-    font-weight: bold;
-    color: #000 !important;
-}
-
-/* label focus color */
-input[type=text]:focus + label {
-    color: #000 !important;
-}
-
-/* label underline focus color */
-input[type=text]:focus {
-    border-bottom: 1px solid #000 !important;
-    box-shadow: 0 1px 0 0 #000 !important;
-}

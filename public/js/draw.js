@@ -25,7 +25,7 @@ const TOOLS = {
 let drawing = false;
 let current = {
     color: 'black',
-    size: 2,
+    size: 3,
     tool: TOOLS.PEN
 };
 
@@ -41,9 +41,8 @@ drawbox.addEventListener('touchend', onMouseUp, false);
 drawbox.addEventListener('touchcancel', onMouseUp, false);
 drawbox.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 
-window.onwheel = throttle(onMouseWheel, 25);
+//window.onwheel = throttle(onMouseWheel, 25);
 window.onresize = changeBoxSize;
-changeBoxSize();
 
 /* Set up the colors palette */
 
@@ -54,20 +53,95 @@ for (let i = 0; i < colors.values.length; i++) {
     }
 }
 
+/* Palette events */
+
 for(color of document.querySelectorAll('.color')){
     color.addEventListener('click', onColorUpdate, false);
 }
 
+for (tool of document.querySelectorAll('.tool')){
+    tool.addEventListener('click', onToolUpdate, false);
+}
+
+const range_pen_size = document.querySelector('#input_pen_size');
+range_pen_size.onchange = (e) => {
+    current.size = parseInt(e.target.value)||2;
+}
+
 /* Socket */
 
-socket.on('drawing', onDrawingEvent);
-socket.on('retrieveDrawing', (draw) => {
-    draw.forEach(onDrawingEvent);
-})
+socket.on('retrieveDrawing', (message) => {
+    if(!message.url) return;
+    console.log('retrieve');
+    let i = new Image();
+    i.src = message.url;
+    i.onload = function () {
+        context.drawImage(i, 0, 0, drawbox.width, drawbox.height);
+    }
+});
 
-/* Functions triggered by events */
+
+/* ----- */
+
+function drawLine(x0, y0, x1, y1, color, size, tool) {
+
+    switch (tool) {
+        case TOOLS.ERASE:
+            /* Don't do anything */
+        break;
+        
+        case TOOLS.BUCKET:
+        
+        break;
+
+        case TOOLS.PEN:
+        default:
+            context.fillStyle = color;
+            context.strokeStyle = color;
+            context.lineWidth = size;
+        
+            context.arc(x0, y0, size/2, 0, 2*Math.PI);
+            context.fill();
+        
+            context.beginPath();
+            context.moveTo(x0, y0);
+            context.lineTo(x1, y1);
+            context.stroke();
+            context.closePath();
+            break;
+    }
+
+    socket.emit('drawing', {
+        token: localStorage.token,
+        channel: game_id,
+        url: drawbox.toDataURL()
+    });
+}
+
+/*  ----  */
+
+function onColorUpdate(e) {
+    current.color = e.target.getAttribute('color');
+}
+
+function onToolUpdate(e){
+    current.tool = TOOLS[e.target.getAttribute('tool')];
+}
+
+function changeBoxSize(){
+    drawbox.width = drawbox.parentElement.offsetWidth;
+    drawbox.height = drawbox.parentElement.offsetHeight;
+    socket.emit('retrieveDrawing', {
+        username: localStorage.username,
+        token: localStorage.token,
+        channel: game_id
+    })
+}
+
+/* Functions triggered by MOUSE */
 
 function onMouseDown(e) {
+    if (e.target.hasAttribute('disabled')) { return }
     e.preventDefault();
     drawing = true;
     current.x = e.offsetX || e.touches[0].clientX - drawbox.offsetLeft;
@@ -75,79 +149,37 @@ function onMouseDown(e) {
 }
 
 function onMouseUp(e) {
-    if (!drawing || !canDraw) { return; }
-    e.preventDefault();
+    if (!drawing || !canDraw || e.target.hasAttribute('disabled')) { return; }
+    onMouseMove(e);
     drawing = false;
-    drawLine(current.x, current.y, e.offsetX || e.touches[0].clientX - drawbox.offsetLeft, e.offsetY || e.touches[0].clientY - drawbox.offsetTop + window.scrollY, current.color, current.size, current.tool, true);
 }
 
 function onMouseMove(e) {
-    if (!drawing || !canDraw) { return; }
+    if (!drawing || !canDraw || e.target.hasAttribute('disabled')) { return; }
     e.preventDefault();
-    drawLine(current.x, current.y, e.offsetX || e.touches[0].clientX - drawbox.offsetLeft, e.offsetY || e.touches[0].clientY - drawbox.offsetTop + window.scrollY, current.color, current.size, current.tool, true);
-    current.x = e.offsetX || e.touches[0].clientX - drawbox.offsetLeft;
-    current.y = e.offsetY || e.touches[0].clientY - drawbox.offsetTop + window.scrollY;
+    const x1 = e.offsetX || e.touches[0].clientX - drawbox.offsetLeft, y1 = e.offsetY || e.touches[0].clientY - drawbox.offsetTop + window.scrollY;
+    drawLine(
+        current.x, 
+        current.y, 
+        x1, 
+        y1, 
+        current.color, 
+        current.size, 
+        current.tool
+    );
+    current.x = x1;
+    current.y = y1;
 }
 
-function drawLine(x0, y0, x1, y1, color, size, tool, emit) {
-
-    context.fillStyle = color;
-    context.strokeStyle = color;
-    context.lineWidth = size;
-
-    context.arc(x0, y0, size/2, 0, 2*Math.PI);
-    context.fill();
-
-    context.beginPath();
-    context.moveTo(x0, y0);
-    context.lineTo(x1, y1);
-    context.stroke();
-    context.closePath();
-
-    if (!emit) { return; }
-    var w = drawbox.width;
-    var h = drawbox.height;
-
-    socket.emit('drawing', {
-        username: localStorage.username,
-        token: localStorage.token,
-        channel: game_id,
-        x0: x0 / w,
-        y0: y0 / h,
-        x1: x1 / w,
-        y1: y1 / h,
-        size: size,
-        tool: tool,
-        color: color
-    });
-}
-
-function onDrawingEvent(data) {
-    var w = drawbox.width;
-    var h = drawbox.height;
-    drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color, data.size, data.tool);
-}
-
-function onColorUpdate(e) {
-    current.color = e.target.getAttribute('color');
-}
-
-function onMouseWheel(e){
+/* Disabled */
+function onMouseWheel(e) {
     wUp = e.wheelDelta > 0 ? true : false;
-    if(wUp){
-        current.size+=1;
-    }else{
-        if(current.size == 1) return; 
-        current.size-=1;
+    if (wUp) {
+        current.size += 1;
+    } else {
+        if (current.size == 1) return;
+        current.size -= 1;
     }
 }
 
-function changeBoxSize(){
-    socket.emit('retrieveDrawing', {
-        username: localStorage.username,
-        token: localStorage.token,
-        channel: game_id
-    })
-    drawbox.height = drawbox.parentElement.offsetHeight;
-    drawbox.width = drawbox.parentElement.offsetWidth;
-}
+changeBoxSize();

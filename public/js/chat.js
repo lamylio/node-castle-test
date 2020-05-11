@@ -1,4 +1,3 @@
-const chatzone = document.querySelector('.chatzone');
 const chatbox = document.querySelector('.chatbox');
 
 /* Chat */

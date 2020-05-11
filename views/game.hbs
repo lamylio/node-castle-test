@@ -1,38 +1,50 @@
 
-<h3>GAME</h3>
 <p class="flow-text">{{id}}</p>
-
 
 <div class="grid-game">
 
-    <div class="userzone">
+    <div class="userzone card-panel">
         <h3 class="text-center">Joueurs</h3>
-        <ul>
-            <li>[WIP]</li>
+        <ul class="userbox card">
+            {{#with channel.users as |users|}}
+                {{#each users}}
+                    <li class="user card" username={{this.username}}>{{this.username}} <i class="skicon-user-circle"></i></li>
+                {{/each}}
+            {{/with}}
         </ul>
     </div>
 
-    <div class="chatzone">
-        <h3 class="text-center">Chat</h3>
-        <div class="divider spacing"></div>
-        <ul class="chatbox"></ul>
+    <div class="chatzone card-panel">
+        <h3 class="chat-title text-center"><i class="skicon-chat"></i> Chat</h3>
+        <ul class="chatbox card"></ul>
+        <div class="chat-input card">
+            <input id="input_message" type="text" placeholder="Votre message ici..">
+            <label for="input_message">Appuyez sur enter pour envoyer</label>
+        </div>
     </div>
 
-    <div class="drawzone">
+    <div class="drawzone card">
         <canvas class="drawbox"></canvas>
     </div>
 
-    <div class="chat-input">
-        <input id="input_message" type="text" placeholder="Votre message ici..">
-        <label for="input_message">Vous pouvez utiliser les balises &lt;i&gt; &lt;b&gt; &lt;u&gt;</label>
-    </div>
-
-    <div class="palette">
-        <div class="colorzone">
+    <div class="palette card-panel">
+        <div class="card">
+            <input type="range" id="input_pen_size" min="1" max="20" step="1" value="3">
+            <label for="input_pen_size">Taille du pinceau</label>
+        </div>
+        <div class="colorzone card">
             <ul class="colors">
                 <li class="color" color="#FFFFFF" style="background: white"></li>
                 <li class="color" color="#808080" style="background: grey"></li>
                 <li class="color" color="#000000" style="background: black"></li>
+            </ul>
+        </div>
+        <div class="tools card">
+            <ul>
+                <li class="tool" tool="PEN"><i class="skicon-brush"></i></li> {{!-- create edit --}}
+                <li class="tool" tool="ERASER" style="opacity: 0.5"><i class="skicon-eraser"></i></li>
+                <li class="tool" tool="BUCKET" style="opacity: 0.5"><i class="skicon-bucket"></i></li> {{!-- format_paint --}}
+                {{!-- delete_forever --}}
             </ul>
         </div>
     </div>

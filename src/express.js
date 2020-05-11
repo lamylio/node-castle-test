@@ -34,8 +34,9 @@ app.get('/game/:id?', (req, res, next) => {
     if (id.length == 36){
         let channel_exists = getChannels().some(channel => channel.id == id);
         if (channel_exists){
-            let channel = getChannels().filter(channel => channel.id == id);
+            let channel = getChannels().filter(channel => channel.id == id)[0];
             /* All is fine */
+            console.log(channel.users);
             res.render('game', {
                 title: "Skribb.lio - Game",
                 scripts: ["chat.js", "game.js", "draw.js"],

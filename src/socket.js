@@ -110,8 +110,8 @@ io.sockets.on('connection', (socket) => {
                             socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.token_already_exists, errorMessage: ERROR_MESSAGES.join_game.token_taken });
                             return;
                         }
-                        let same_username = channel.users.filter(user => user.username.split(socket.username)[0] == "");
-                        socket.username = socket.username + " (" + same_username.length + ")";
+                        let same_username = channel.users.filter(user => user.username.split(socket.username + " (")[0] == "");
+                        socket.username = socket.username + " (" + same_username.length+1 + ")";
                         socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.already_taken, errorMessage: ERROR_MESSAGES.join_game.taken });
                     }
 

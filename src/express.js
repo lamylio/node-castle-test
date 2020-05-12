@@ -32,9 +32,8 @@ app.get('/game/:id?', (req, res, next) => {
     /* Check id */
     let id = sanitize(req.params.id, { allowedTags: [] }) || "unknown";
     if (id.length == 36){
-        let channel_exists = getChannels().some(channel => channel.id == id);
-        if (channel_exists){
-            let channel = getChannels().filter(channel => channel.id == id)[0];
+        let channel = getChannels().find(channel => channel.id == id);
+        if (channel){
             /* All is fine */
             res.render('game', {
                 title: "Skribb.lio - Game",

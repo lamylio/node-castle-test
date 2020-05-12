@@ -3,7 +3,7 @@
 
 <div class="grid-game">
 
-    <div class="userzone card-panel">
+    <div class="userzone card-panel" invisible>
         <h3 class="text-center">Joueurs</h3>
         <ul class="userbox card">
             {{#with channel.users as |users|}}
@@ -12,6 +12,28 @@
                 {{/each}}
             {{/with}}
         </ul>
+    </div>
+
+    <div class="settings card-panel">
+        <h3 class="text-center">Paramètres</h3>
+
+        <h6>Nombre de rounds</h6>
+        <div class="section setting">
+            <button onclick="this.nextElementSibling.stepDown()" disabled></button>
+            <input type="number" id="input_setting_rounds" min="1" max="5" step="1" value="3" disabled>
+            <button onclick="this.previousElementSibling.stepUp()" disabled></button>
+        </div>
+            
+        <h6>Durée d'un round</h6>
+        <div class="section setting">
+            <button onclick="this.nextElementSibling.stepDown()" disabled></button>
+            <input type="number" id="input_setting_round_duration" min="30" max="180" value="90" step="5" disabled>
+            <button onclick="this.previousElementSibling.stepUp()" disabled></button>
+        </div>
+
+        <div class="section">
+            <button class="waves-effect waves-light btn-large grey darken-3" id="button_start_game" disabled>Démarrer</button>
+        </div>
     </div>
 
     <div class="chatzone card-panel">
@@ -23,11 +45,11 @@
         </div>
     </div>
 
-    <div class="drawzone card">
-        <canvas class="drawbox"></canvas>
+    <div class="drawzone card" invisible>
+        <canvas class="drawbox" disabled></canvas>
     </div>
 
-    <div class="palette card-panel">
+    <div class="palette card-panel" invisible>
         <div class="card">
             <input type="range" id="input_pen_size" min="1" max="20" step="1" value="3">
             <label for="input_pen_size">Taille du pinceau</label>

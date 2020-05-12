@@ -1,6 +1,8 @@
 /* Largement inspiré de la démo de socket.io (lol) */
 
 const drawbox = document.querySelector('.drawbox');
+const drawzone= document.querySelector('.drawzone');
+
 const colors = {
     selector: document.querySelector('.colorzone'),
     values: [  
@@ -14,7 +16,7 @@ let context = drawbox.getContext('2d');
 context.imageSmoothingEnabled = false;
 
 /* TEMP */
-let canDraw = true;
+let canDraw = false;
 
 const TOOLS = {
     PEN: 0,
@@ -36,10 +38,10 @@ drawbox.addEventListener('mouseup', onMouseUp, false);
 drawbox.addEventListener('mouseout', onMouseUp, false);
 drawbox.addEventListener('mousemove', throttle(onMouseMove, 20), false);
 
-drawbox.addEventListener('touchstart', onMouseDown, false);
-drawbox.addEventListener('touchend', onMouseUp, false);
-drawbox.addEventListener('touchcancel', onMouseUp, false);
-drawbox.addEventListener('touchmove', throttle(onMouseMove, 10), false);
+drawzone.addEventListener('touchstart', onMouseDown, false);
+drawzone.addEventListener('touchend', onMouseUp, false);
+drawzone.addEventListener('touchcancel', onMouseUp, false);
+drawzone.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 
 //window.onwheel = throttle(onMouseWheel, 25);
 window.onresize = changeBoxSize;
@@ -70,17 +72,21 @@ range_pen_size.onchange = (e) => {
 
 /* Socket */
 
-socket.on('retrieveDrawing', throttle(retrieve, 50));
+socket.on('retrieve_drawing', throttle(retrieve, 10));
 
 function retrieve(message){
-    if (!message.url) return;
-    console.log('retrieve');
-    let i = new Image();
-    i.src = message.url;
-    i.onload = function () {
-        context.drawImage(i, 0, 0, drawbox.width, drawbox.height);
+    if (message.url){
+        let i = new Image();
+        i.src = message.url;
+        i.onload = function () {
+            context.drawImage(i, 0, 0, drawbox.width, drawbox.height);
+        }
     }
 }
+
+socket.on('clean_drawing', () => {
+    context.clearRect(0, 0, drawbox.width, drawbox.height);
+});
 
 
 /* ----- */
@@ -131,14 +137,11 @@ function onToolUpdate(e){
 }
 
 function changeBoxSize(){
-    if (drawbox.width == drawbox.parentElement.offsetWidth && drawbox.height == drawbox.parentElement.offsetHeight) return;
     drawbox.width = drawbox.parentElement.offsetWidth;
     drawbox.height = drawbox.parentElement.offsetHeight;
     socket.emit('retrieveDrawing', {
-        username: localStorage.username,
-        token: localStorage.token,
-        channel: game_id
-    })
+        token: localStorage.token
+    });
 }
 
 /* Functions triggered by MOUSE */
@@ -147,20 +150,22 @@ function onMouseDown(e) {
     if (e.target.hasAttribute('disabled')) { return }
     e.preventDefault();
     drawing = true;
-    current.x = e.offsetX || e.touches[0].clientX - drawbox.offsetLeft;
+    current.x = e.offsetX || e.touches[0].clientX - drawzone.offsetLeft;
     current.y = e.offsetY || e.touches[0].clientY - drawzone.offsetTop + window.pageYOffset;
 }
 
 function onMouseUp(e) {
-    if (!drawing || !canDraw || e.target.hasAttribute('disabled')) { return; }
+    if (!drawing || e.target.hasAttribute('disabled')) return;
     onMouseMove(e);
     drawing = false;
 }
 
 function onMouseMove(e) {
-    if (!drawing || !canDraw || e.target.hasAttribute('disabled')) { return; }
+    if (!drawing || e.target.hasAttribute('disabled')) return;
     e.preventDefault();
-    const x1 = e.offsetX || e.touches[0].clientX - drawzone.offsetLeft, y1 = e.offsetY || e.touches[0].clientY - drawzone.offsetTop + window.pageYOffset;
+    const x1 = e.offsetX || e.touches[0].clientX - drawzone.offsetLeft, 
+    y1 = e.offsetY || e.touches[0].clientY - drawzone.offsetTop + window.pageYOffset;
+
     drawLine(
         current.x, 
         current.y, 
@@ -184,5 +189,3 @@ function onMouseWheel(e) {
         current.size -= 1;
     }
 }
-
-changeBoxSize();

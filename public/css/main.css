@@ -1,4 +1,4 @@
-@import 'skribblicons.css';
+@import 'skicon.css';
 
 html{
     font-family: sans-serif;
@@ -26,6 +26,10 @@ body{
     margin: 1em auto;
 }
 
+*[invisible]{
+    display: none !important;
+}
+
 /* ---- */
 
 ::-webkit-scrollbar {
@@ -39,6 +43,25 @@ body{
 ::-webkit-scrollbar-thumb {
     background: black;
 }
+
+input[type="number"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+    border-bottom: unset !important;
+    box-shadow: unset !important;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+input[type=number]:focus {
+    border-bottom: unset !important;
+    box-shadow: unset !important;
+}
+
 
 /* ----- Materialize.css ----- */
 
@@ -80,4 +103,3 @@ body{
 .toast-content{
     padding: auto 1em;
 }
-

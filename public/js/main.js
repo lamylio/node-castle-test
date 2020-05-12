@@ -1,6 +1,25 @@
 const socket = io();
 
-socket.on('encryption', (message) => {localStorage.token = localStorage.token || message.token;})
+socket.on('disconnect', (reason) => {
+    switch (reason) {
+        case 'ping timeout':
+            reason = "Votre connexion est interrompue ou trop lente.";
+            break;
+        case 'server namespace disconnect':
+        case 'transport error':
+        case 'transport close':
+            reason = "Le serveur redémarre ou a planté.";
+            break;
+        default:
+            reason = "Malheureusement la raison est inconnue..";
+            break;
+    }
+    showErrorMessage({errorTitle: "Vous êtes déconnecté", errorMessage: "Raison : " + reason});
+})
+
+socket.emit('identity', {token: localStorage.token});
+socket.on('identity', (message) => {localStorage.token = message.token;})
+socket.on('username_already_taken', (message) => {localStorage.username = message.username;})
 socket.on('user_error', showErrorMessage);
 
 function showErrorMessage(message) {

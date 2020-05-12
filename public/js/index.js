@@ -4,23 +4,23 @@ const button_join_game = document.querySelector('#button_join_game');
 const input_username = document.querySelector('#input_username');
 const input_game_id = document.querySelector('#input_game_id');
 
-
-input_username.value = localStorage.username || "";
+input_username.value = localStorage.username;
 input_username.focus();
 
 input_username.onchange = input_username.onfocusout = (e) => {
     if(input_username.value == "") {
-        input_username.value = localStorage.username || "";
+        input_username.value = localStorage.username;
         throttle(showErrorMessage({ errorTitle: "Nom d'utilisateur obligatoire", errorMessage: "Vous devez définir un nom d'utilisateur pour pouvoir jouer."}),3000);
     }else{
         sanitize(input_username.value, (u) => {localStorage.username = u});
     }
 }
 
+/* Create game */
 button_create_game.addEventListener('click', (e) => {
     if (localStorage.username){
         socket.emit('create_game', {
-            username: input_username.value,
+            username: localStorage.username,
             token: localStorage.token
         })
     }else throttle(showErrorMessage({ errorTitle: "Nom d'utilisateur introuvable", errorMessage: "Vous devez définir un nom d'utilisateur pour créer une nouvelle partie."}), 3000);

@@ -12,3 +12,8 @@ function createChatMessage(message) {
     createCustomElement('li', chatbox, { content, class: ["message"] })
     chatbox.scrollTop = chatbox.scrollHeight;
 }
+
+socket.on('word_found', (message) => {
+    if(!message.username) return;
+    createChatMessage({ console: true, content: `<span style='color: green;font-weight: bold'><i class='skicon-lightbulb'></i> ${message.username} a trouvé</span>` });
+});

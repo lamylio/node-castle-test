@@ -46,7 +46,7 @@ module.exports.ERROR_MESSAGES = {
     }
 }
 
-let channels = [], timers = [], timer_count = 0;
+let channels = [], timers = [];
 
 io.sockets.on('connection', (socket) => {
 
@@ -75,6 +75,7 @@ io.sockets.on('connection', (socket) => {
 /* ---- */
 
 function getChannels() {return channels;}
+function getTimers(){ return timers;}
 
 /* So basically the user can only be host of 1 channel at a time 
 (coz I use '.find' which returns the first occurence) */
@@ -93,31 +94,31 @@ function isHost (socket) {
     return false;
 }
 
-function nextRound(socket, channel) {
-    clearTimeout(timers[channel.game.timer]);
-
-    if(channel.game.round > 0 && channel.game.words.found.length == 0){
-        socket.emit('message', {console: true, content: "Personne n'a trouvé :("});
-        socket.to(channel.id).emit('message', {console: true, content: "Personne n'a trouvé :("});
-    }
-
+function nextDrawer(socket, channel) {
     /* Reset the round propreties */
     channel.game.drawURL = "";
     channel.game.words.picked = "";
     channel.game.words.proposed = [];
     channel.game.words.found = [];
+    channel.game.timer = 0;
 
-    let next_drawer = channel.users.find(user => user.hasDrawn == false);
+    let next_drawer = channel.users.find(
+        user => user.hasDrawn == false 
+        && user.uuid != channel.game.drawer.uuid
+    );
+
     if (!next_drawer) {
         /* Reset the user hasDrawn property */
         channel.users.map(user => { user.hasDrawn = false });
-        /* If there's not user left who hasnt drawn, start the next round */
         if (channel.game.round < channel.settings.rounds) {
             channel.game.round++;
             next_drawer = channel.users[0];
         } else {
             /* TODO - END THE GAME */
+            channel.game.started = false;
             channel.game.drawer = "";
+            channel.game.round = 0;
+
             socket.emit('game_end', { winner: "WIP" });
             socket.to(channel.id).emit('game_end', { winner: "WIP" });
             return;
@@ -138,16 +139,13 @@ function nextRound(socket, channel) {
     socket.emit('clean_drawing');
     socket.to(channel.id).emit('clean_drawing');
 
-    if (next_drawer.uuid == socket.uuid)
-        socket.emit('pick_word', { words: channel.game.words.proposed });
-    socket.broadcast.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
+    if (next_drawer.uuid == socket.uuid) socket.emit('pick_word', { words: channel.game.words.proposed });
+    else socket.broadcast.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
 
-    channel.game.timer = timer_count.length;
-    timers.push(setTimeout((s, c) => {
-        s.emit('reveal_word', { word: channel.game.words.picked });
-        s.to(c.id).emit('reveal_word', { word: channel.game.words.picked });
-        setTimeout(nextRound, 3000, socket, channel);
-    }, 1000 * channel.settings.duration, socket, channel));
+    let d = new Date();
+    d = new Date(d.getTime() + (1000 * parseInt(channel.settings.duration)));
+    console.log(d);
+    channel.game.expires = d;
 }
 
-module.exports = { getChannels, nextRound, isHost }
+module.exports = { getChannels, getTimers, nextDrawer: nextDrawer, isHost }

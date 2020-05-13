@@ -1,10 +1,14 @@
 
-<p class="flow-text">{{id}}</p>
-<h5>
-    <ul class="hint">
-        <!-- <li class="letter">_</li> -->
-    </ul>
-</h5>
+<div class="section">
+    <p class="flow-text">{{id}}</p>
+    <h5>
+        <ul class="hint">
+            <!-- <li class="letter">_</li> -->
+        </ul>
+    </h5>
+
+
+</div>
 
 <div id="pick" class="modal">
     <div class="modal-content">
@@ -15,6 +19,13 @@
 
         </ul>
     </div>
+</div>
+
+<div id="reveal" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <h4 class="header text-center">Il fallait deviner le mot</h4>
+        <h3 class="reveal word"></h3>
+    </div> 
 </div>
 
 <div class="grid-game">
@@ -61,8 +72,8 @@
         </div>
     </div>
 
-    <div class="drawzone card" invisible>
-        <canvas class="drawbox" disabled></canvas>
+    <div class="drawzone card" invisible disabled>
+        <canvas class="drawbox"></canvas>
     </div>
 
     <div class="palette card-panel" invisible>

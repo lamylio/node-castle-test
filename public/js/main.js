@@ -1,6 +1,7 @@
 const socket = io();
 
 const modal_pick = M.Modal.init(document.querySelector('#pick'), { dismissible: false, startingTop: '10%', endingTop: '20%'});
+const modal_reveal = M.Modal.init(document.querySelector('#reveal'));
 
 socket.on('disconnect', (reason) => {
     switch (reason) {

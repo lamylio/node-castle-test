@@ -1,5 +1,5 @@
 const { sanitize } = require('../../app.js');
-const { nextRound } = require('../socket.js');
+const { nextDrawer } = require('../socket.js');
 
 /* ----- CHAT EVENTS ----- */
 module.exports = function (socket, channels, ERROR_MESSAGES) {
@@ -18,6 +18,11 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
                     /* If a word is choosen */
                     if(channel.game.words.picked != ""){
+
+                        if (new Date() >= channel.game.expires) {
+                            nextDrawer(socket, channel);
+                            return;
+                        }
 
                         /* If user already found or is the drawer return a cannot_talk error */
                         let already_found = channel.game.words.found.find(uuid => uuid == socket.uuid);
@@ -42,9 +47,10 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                                 socket.to(channel.id).emit('word_found', { username: socket.username });
                                 
                                 setTimeout(() => {
-                                    if(channel.game.words.found.length >= channel.users.length-1)
-                                    nextRound(socket, channel);
-                                }, 1000);
+                                    if(channel.game.words.found.length < channel.users.length-1) return;
+                                    if(channel.game.round > channel.settings.rounds) return;
+                                    nextDrawer(socket, channel);
+                                }, 3000);
 
                                 return;
                             }

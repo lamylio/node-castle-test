@@ -1,5 +1,5 @@
 const { sanitize, manulex, manulex_size } = require('../../app.js');
-const { nextRound, isHost } = require('../socket.js');
+const { nextDrawer, getTimers, isHost } = require('../socket.js');
 const uuid = require('uuid');
 
 /* ----- CHANNELS EVENTS ----- */
@@ -36,9 +36,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         picked: "",
                         proposed: [],
                         found: [],
-                        timer: 0, 
                     },
-                    timer: 0,
+                    expires: 0,
                 },
                 locked: true
             });
@@ -140,7 +139,10 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             
             if(channel.game.started){
                 if(channel.game.drawer.uuid == socket.uuid)
-                nextRound(socket, channel);
+                {
+                    clearTimeout(getTimers[channel.game.timer]);
+                    nextDrawer(socket, channel);
+                }
             }
         }
     });
@@ -173,7 +175,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 socket.emit('game_start');
                 socket.to(socket.channel).emit('game_start');
                 
-                nextRound(socket, channel);
+                nextDrawer(socket, channel);
 
             } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.not_enough_players, errorMessage: ERROR_MESSAGES.BODY.not_enough_players });         
         }
@@ -214,10 +216,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     channel.game.words.picked = word;
                     channel.game.words.hint = hidden_word;
                     
-                    console.log("Word : %s | Hidden : %s", word, hidden_word);
-
-                    socket.emit('reveal_word', {word});
-                    socket.to(channel.id).emit('reveal_word', {word: hidden_word});
+                    socket.emit('hint_word', {word});
+                    socket.to(channel.id).emit('hint_word', {word: hidden_word});
 
 
                 } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_drawer });
@@ -226,6 +226,17 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
         } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.missing_setting, errorMessage: ERROR_MESSAGES.BODY.missing_setting });         
     });
+
+    socket.on('time_out', () => {
+        if (!socket.uuid || !socket.channel || !socket.username) return;
+
+        let channel = channels.find(channel => channel.id == socket.channel);
+        if (channel) {
+            if (new Date() >= channel.game.expires) {
+                nextDrawer(socket, channel);
+            }
+        } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });
+    })
 
 }
 

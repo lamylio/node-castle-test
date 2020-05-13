@@ -12,10 +12,11 @@ function changeSetting(e){
     if (e.hasAttribute('disabled')) return;
     let name = e.getAttribute('name');
     let value = e.value;
-    console.log(name + " : " + value);
     socket.emit('change_setting', { setting: { name, value } });
 }
 /* ----- Game Init ----- */
+
+let expires;
 
 document.querySelector('#button_start_game').onclick = () => {
     socket.emit('start_game');
@@ -33,6 +34,13 @@ socket.on('game_start', () => {
 
 socket.on('game_end', () => {
     alert('TODO: GAME END');
+    let g = document.querySelector('.grid-game');
+    for (let ch of g.children) {
+        if(ch.classList.contains("chatzone")) continue;
+        if (!ch.hasAttribute('invisible')) ch.setAttribute('invisible', '');
+    }
+    document.querySelector('.settings').removeAttribute('invisible');
+    g.classList.remove('started');
 });
 
 /* Users related listeners */
@@ -51,13 +59,17 @@ socket.on('host_changed', (message) => {
 
 socket.on('drawer_changed', (message) => {
     for(let u of document.querySelectorAll('.user')) u.style.color = 'initial';
+    drawzone.setAttribute('disabled', '');
 
-    if(message.username == localStorage.username) drawbox.removeAttribute('disabled');
-    else drawbox.setAttribute('disabled', '');
+    if (message.username == localStorage.username) drawzone.removeAttribute('disabled');
 
     document.querySelector(`.user[username=${message.username}]`).style.color = 'blue';
     createChatMessage({ console: true, content: `<span style='color: blue;font-weight: bold'><i class='skicon-pencil'></i> ${message.username}</span>` });
-})
+
+    expires = setTimeout(() => {
+        socket.emit('time_out');
+    }, 1000 * document.querySelector(`.setting input[name='duration']`).value); 
+});
 
 /* -- */
 
@@ -112,6 +124,16 @@ socket.on('pick_word', (message) => {
 })
 
 socket.on('reveal_word', (message) => {
+    if (!message.word) return;
+    let reveal = document.querySelector('.reveal.word');
+    reveal.textContent = message.word;
+    modal_reveal.open();
+    setTimeout(() => {
+        modal_reveal.close();
+    }, 3000);
+})
+
+socket.on('hint_word', (message) => {
     if(!message.word) return;
     let hint = document.querySelector('.hint');
     hint.textContent = '';

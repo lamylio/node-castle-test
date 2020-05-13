@@ -33,10 +33,10 @@ let current = {
 
 /* Register events */
 
-drawbox.addEventListener('mousedown', onMouseDown, false);
-drawbox.addEventListener('mouseup', onMouseUp, false);
-drawbox.addEventListener('mouseout', onMouseUp, false);
-drawbox.addEventListener('mousemove', throttle(onMouseMove, 20), false);
+drawzone.addEventListener('mousedown', onMouseDown, false);
+drawzone.addEventListener('mouseup', onMouseUp, false);
+drawzone.addEventListener('mouseout', onMouseUp, false);
+drawzone.addEventListener('mousemove', throttle(onMouseMove, 20), false);
 
 drawzone.addEventListener('touchstart', onMouseDown, false);
 drawzone.addEventListener('touchend', onMouseUp, false);
@@ -71,6 +71,10 @@ range_pen_size.onchange = (e) => {
 }
 
 /* Socket */
+
+socket.on('lock_draw', () => {
+
+});
 
 socket.on('retrieve_drawing', throttle(retrieve, 10));
 
@@ -147,7 +151,7 @@ function changeBoxSize(){
 /* Functions triggered by MOUSE */
 
 function onMouseDown(e) {
-    if (e.target.hasAttribute('disabled')) { return }
+    if (drawzone.hasAttribute('disabled')) { return }
     e.preventDefault();
     drawing = true;
     current.x = e.offsetX || e.touches[0].clientX - drawzone.offsetLeft;
@@ -155,13 +159,13 @@ function onMouseDown(e) {
 }
 
 function onMouseUp(e) {
-    if (!drawing || e.target.hasAttribute('disabled')) return;
+    if (!drawing || drawzone.hasAttribute('disabled')) return;
     onMouseMove(e);
     drawing = false;
 }
 
 function onMouseMove(e) {
-    if (!drawing || e.target.hasAttribute('disabled')) return;
+    if (!drawing || drawzone.hasAttribute('disabled')) return;
     e.preventDefault();
     const x1 = e.offsetX || e.touches[0].clientX - drawzone.offsetLeft, 
     y1 = e.offsetY || e.touches[0].clientY - drawzone.offsetTop + window.pageYOffset;

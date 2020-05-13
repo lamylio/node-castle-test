@@ -5,7 +5,7 @@ socket.on('user_joined', (message) => {
 });
 
 socket.on('user_left', (message) => {
-    createChatMessage({ console: true, content: `<b class="red-text text-darken-3"><i class='skicon-minus-squared'></i> ${message.username}</b> a quitté.` });
+    createChatMessage({ console: true, content: `<b class="red-text text-darken-3"><i class='skicon-minus-squared'></i> ${message.username} a quitté.</b>` });
     document.querySelector(`li[username*='${message.username}']`).remove();
 })
 

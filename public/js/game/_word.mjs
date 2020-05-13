@@ -46,5 +46,5 @@ socket.on('hint_word', (message) => {
 
 socket.on('word_found', (message) => {
     if (!message.username) return;
-    createChatMessage({ console: true, content: `<b class="orange-text text-darken-3"><i class='skicon-lightbulb'></i> ${message.username} a trouvé.</b>` });
+    createChatMessage({ console: true, content: `<b class="orange-text text-darken-3"><i class='skicon-lightbulb'></i> ${message.username} a trouvé. (${message.score} pts)</b>` });
 });

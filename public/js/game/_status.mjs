@@ -13,7 +13,7 @@ socket.on('game_start', () => {
 });
 
 socket.on('game_end', (message) => {
-    createChatMessage({ console: true, content: `<b class="yellow-text text-darken-3"><i class='skicon-award'></i> ${message.winner.username} a gagné avec ${message.winner.score} points !</b>` });
+    createChatMessage({ console: true, content: `<b class="yellow-text text-darken-3"><i class='skicon-award'></i> ${message.winner} a gagné avec ${message.score} points !</b>` });
     let g = document.querySelector('.grid-game');
     for (let ch of g.children) {
         if (ch.classList.contains("chatzone")) continue;

@@ -38,11 +38,11 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             if (channel.game.words.picked.localeCompare(content, 'fr', { sensitivity: 'base' }) == 0){
                                 channel.game.words.found.push(socket.uuid);
 
-                                socket.emit('word_found', { username: socket.username });
-                                socket.to(channel.id).emit('word_found', { username: socket.username });
-                                
                                 let user = channel.users.find(user => user.uuid == socket.uuid);
                                 user.score += Math.round( (channel.game.expires - d) / (10 * (channel.settings.duration/2) ) );
+
+                                socket.emit('word_found', { username: socket.username, score: user.score });
+                                socket.to(channel.id).emit('word_found', { username: socket.username, score: user.score});
                                 
                                 setTimeout(() => {
                                     if(channel.game.words.found.length < channel.users.length-1) return;

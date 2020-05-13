@@ -172,6 +172,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             if(channel.users.length > 1){
 
                 channel.game.started = true;
+                channel.game.round++;
+                
                 socket.emit('game_start');
                 socket.to(socket.channel).emit('game_start');
                 

@@ -144,7 +144,6 @@ function nextDrawer(socket, channel) {
 
     let d = new Date();
     d = new Date(d.getTime() + (1000 * parseInt(channel.settings.duration)));
-    console.log(d);
     channel.game.expires = d;
 }
 

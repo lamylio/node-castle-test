@@ -40,6 +40,7 @@ socket.on('game_end', () => {
         if (!ch.hasAttribute('invisible')) ch.setAttribute('invisible', '');
     }
     document.querySelector('.settings').removeAttribute('invisible');
+    document.querySelector('.hint').textContent = '';
     g.classList.remove('started');
 });
 

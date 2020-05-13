@@ -39,10 +39,13 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                                 channel.game.words.found.push(socket.uuid);
 
                                 let user = channel.users.find(user => user.uuid == socket.uuid);
-                                user.score += Math.round( (channel.game.expires - d) / (10 * (channel.settings.duration/2) ) );
-
-                                socket.emit('word_found', { username: socket.username, score: user.score });
-                                socket.to(channel.id).emit('word_found', { username: socket.username, score: user.score});
+                                let drawer = channel.users.find(user => user.uuid == channel.words.drawer.uuid);
+                                let increase = Math.round((channel.game.expires - d) / (10 * (channel.settings.duration / 2)));
+                                user.score += increase;
+                                drawer.score += increase/channel.users.length;
+                                
+                                socket.emit('word_found', { username: socket.username, score: increase });
+                                socket.to(channel.id).emit('word_found', { username: socket.username, score: increase});
                                 
                                 setTimeout(() => {
                                     if(channel.game.words.found.length < channel.users.length-1) return;

@@ -19,11 +19,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     /* If a word is choosen */
                     if(channel.game.words.picked != ""){
 
-                        if (new Date() >= channel.game.expires) {
-                            nextDrawer(socket, channel);
-                            return;
-                        }
-
                         /* If user already found or is the drawer return a cannot_talk error */
                         let already_found = channel.game.words.found.find(uuid => uuid == socket.uuid);
                         if (channel.game.drawer.uuid == socket.uuid || already_found){
@@ -52,6 +47,12 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                                     nextDrawer(socket, channel);
                                 }, 3000);
 
+                                return;
+                            }
+
+
+                            if (new Date() > channel.game.expires) {
+                                nextDrawer(socket, channel);
                                 return;
                             }
                         }

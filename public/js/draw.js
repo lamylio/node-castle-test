@@ -139,7 +139,7 @@ function onToolUpdate(e){
 function changeBoxSize(){
     drawbox.width = drawbox.parentElement.offsetWidth;
     drawbox.height = drawbox.parentElement.offsetHeight;
-    socket.emit('retrieveDrawing', {
+    socket.emit('retrieve_drawing', {
         token: localStorage.token
     });
 }

@@ -1,5 +1,21 @@
 
 <p class="flow-text">{{id}}</p>
+<h5>
+    <ul class="hint">
+        <!-- <li class="letter">_</li> -->
+    </ul>
+</h5>
+
+<div id="pick" class="modal">
+    <div class="modal-content">
+        <h4 class="header text-center">Sélectionnez un mot à dessiner</h4>
+        <small class="text-center">(Vous avez 8 secondes pour choisir)</small>
+        <ul class="words">
+            <!-- <li class="word collection-item"></li> -->
+
+        </ul>
+    </div>
+</div>
 
 <div class="grid-game">
 
@@ -19,16 +35,16 @@
 
         <h6>Nombre de rounds</h6>
         <div class="section setting">
-            <button onclick="this.nextElementSibling.stepDown()" disabled></button>
-            <input type="number" id="input_setting_rounds" min="1" max="5" step="1" value="3" disabled>
-            <button onclick="this.previousElementSibling.stepUp()" disabled></button>
+            <button onclick="let bu = this.nextElementSibling; bu.stepDown(); changeSetting(bu);" disabled></button>
+            <input type="number" name="rounds" id="input_setting_rounds" min="1" max="5" step="1" value="3" disabled>
+            <button onclick="let bu = this.previousElementSibling; bu.stepUp();  changeSetting(bu);" disabled></button>
         </div>
             
         <h6>Durée d'un round</h6>
         <div class="section setting">
-            <button onclick="this.nextElementSibling.stepDown()" disabled></button>
-            <input type="number" id="input_setting_round_duration" min="30" max="180" value="90" step="5" disabled>
-            <button onclick="this.previousElementSibling.stepUp()" disabled></button>
+            <button onclick="let bu = this.nextElementSibling; bu.stepDown();  changeSetting(bu);" disabled></button>
+            <input type="number" name="duration" id="input_setting_round_duration" min="30" max="180" value="90" step="10" disabled>
+            <button onclick="let bu = this.previousElementSibling; bu.stepUp();  changeSetting(bu);" disabled></button>
         </div>
 
         <div class="section">

@@ -1,11 +1,15 @@
 const socket = io();
 
+const modal_pick = M.Modal.init(document.querySelector('#pick'), { dismissible: false, startingTop: '10%', endingTop: '20%'});
+
 socket.on('disconnect', (reason) => {
     switch (reason) {
         case 'ping timeout':
             reason = "Votre connexion est interrompue ou trop lente.";
             break;
         case 'server namespace disconnect':
+            reason = "Vous avez été exclu de la partie.";
+            break;
         case 'transport error':
         case 'transport close':
             reason = "Le serveur redémarre ou a planté.";

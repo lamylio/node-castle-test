@@ -18,12 +18,10 @@ input_username.onchange = input_username.onfocusout = (e) => {
 
 /* Create game */
 button_create_game.addEventListener('click', (e) => {
-    if (localStorage.username){
-        socket.emit('create_game', {
-            username: localStorage.username,
-            token: localStorage.token
-        })
-    }else throttle(showErrorMessage({ errorTitle: "Nom d'utilisateur introuvable", errorMessage: "Vous devez définir un nom d'utilisateur pour créer une nouvelle partie."}), 3000);
+    socket.emit('create_game', {
+        username: localStorage.username,
+        token: localStorage.token
+    })
 });
 
 button_join_game.addEventListener('click', (e) => {
@@ -31,13 +29,10 @@ button_join_game.addEventListener('click', (e) => {
         input_game_id.parentElement.style.display = 'block';
         input_game_id.focus();
     }else{
-        if(input_game_id.value.length == 36){
-            socket.emit('check_game', {id: input_game_id.value});
-        }
-        else throttle(showErrorMessage({errorTitle: "Mauvais identifiant de jeu", errorMessage: "L'identifiant ne respecte pas le format requis."}),3000);
+        socket.emit('check_game', {id: input_game_id.value});
     }
 });
 
 socket.on('game_redirect', (message) =>{
-    window.location += "game/" + message.id;
+    window.location = "/game/" + message.id;
 });

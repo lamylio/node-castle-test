@@ -1,26 +1,15 @@
-const {app, sanitize} = require('../app.js');
+const {express, app, sanitize} = require('../app.js');
 let { getChannels } = require('./socket.js');
 
-
-let bodyParser = require('body-parser');
-
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 /* Routes */
 
-app.get('/', (req, res) => {
+app.get(['/', '/game'], (req, res) => {
     res.render('index', {
         title: "Skribb.lio",
         scripts: ["index.js"]
-    });
-});
-
-app.get('/drawbox/:id?', (req, res) => {
-    let id = sanitize(req.params.id, { allowedTags: [] }) || "unknown";
-    res.render("drawbox", {
-        title: "Skribbl.io - Drawbox",
-        scripts: ["draw.js"],
-        id
     });
 });
 
@@ -28,9 +17,27 @@ app.post('/sanitize', (req, res) => {
     res.end(sanitize(req.body.content, { allowedTags: [] })) 
 })
 
+/* ----- */
+
+app.get('/channels', (req, res) =>{
+    res.jsonp(getChannels());
+})
+
+app.get('/channel/:id?', (req, res, next) => {
+    let id = sanitize(req.params.id, { allowedTags: [] });
+    if (id.length == 36) {
+        let channel = getChannels().find(channel => channel.id == id);
+        if (channel) {
+            res.jsonp(channel);
+            return;
+        }
+    }
+    next();
+});
+
 app.get('/game/:id?', (req, res, next) => {
     /* Check id */
-    let id = sanitize(req.params.id, { allowedTags: [] }) || "unknown";
+    let id = sanitize(req.params.id, { allowedTags: [] });
     if (id.length == 36){
         let channel = getChannels().find(channel => channel.id == id);
         if (channel){
@@ -50,7 +57,7 @@ app.get('/game/:id?', (req, res, next) => {
 
 /* Errors Handeling */
 
-app.use('/game/:id?', (req, res, next) => {
+app.use(/(game|channel)+\/?(\w)?/, (req, res, next) => {
     res.status(400).render('error', {
         title: "Skribb.lio - 400",
         errorType: "400 Bad Request",

@@ -15,5 +15,5 @@ function createChatMessage(message) {
 
 socket.on('word_found', (message) => {
     if(!message.username) return;
-    createChatMessage({ console: true, content: `<span style='color: green;font-weight: bold'><i class='skicon-lightbulb'></i> ${message.username} a trouvé</span>` });
+    createChatMessage({ console: true, content: `<span style='color: orangered;font-weight: bold'><i class='skicon-lightbulb'></i> ${message.username} a trouvé</span>` });
 });

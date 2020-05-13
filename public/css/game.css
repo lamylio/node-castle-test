@@ -235,3 +235,28 @@ body::before{
     padding: 0px 5em;
     margin: .5em auto;
 } */
+
+/* ----- Word ----- */
+
+.words{
+    display: grid;
+    grid-auto-columns: max-content;
+    justify-content: center;
+    align-items: center;
+    padding: 1em;
+}
+
+.word{
+    padding: .6em;
+    margin: .6em auto;
+    outline: 1px solid grey;
+    font-size: 120%;
+    text-transform: uppercase;
+}
+
+.hint .letter{
+    display: inline-block;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin: .5rem;
+}

@@ -1,7 +1,7 @@
 const socket = io();
 
 const modal_pick = M.Modal.init(document.querySelector('#pick'), { dismissible: false, startingTop: '10%', endingTop: '20%'});
-const modal_reveal = M.Modal.init(document.querySelector('#reveal'));
+const modal_reveal = M.Modal.init(document.querySelector('#reveal'), { startingTop: '10%', endingTop: '20%' });
 
 socket.on('disconnect', (reason) => {
     switch (reason) {
@@ -66,6 +66,12 @@ async function sanitize(content, callback){
     let r = await f.text() || "Inconnu";
     callback(r);
     return r;
+}
+
+function dynamicallyLoadScript(url) {
+    var script = document.createElement("script"); 
+    script.src = url; 
+    document.head.appendChild(script);
 }
 
 function timeout(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }

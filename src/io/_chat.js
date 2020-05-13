@@ -25,7 +25,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.cannot_talk, errorMessage: ERROR_MESSAGES.BODY.cannot_talk });
                             return;
                         }else{
-
+                            let d = new Date();
                             /* If he's a guesser check if word is valid or wrong 
                             
                             I could get rid of all the accent 
@@ -37,21 +37,24 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             
                             if (channel.game.words.picked.localeCompare(content, 'fr', { sensitivity: 'base' }) == 0){
                                 channel.game.words.found.push(socket.uuid);
+
                                 socket.emit('word_found', { username: socket.username });
-                                socket.emit('reveal_word', { word : channel.game.words.picked });
                                 socket.to(channel.id).emit('word_found', { username: socket.username });
+                                
+                                let user = channel.users.find(user => user.uuid == socket.uuid);
+                                user.score += Math.round( (channel.game.expires - d) / (10 * (channel.settings.duration/2) ) );
                                 
                                 setTimeout(() => {
                                     if(channel.game.words.found.length < channel.users.length-1) return;
                                     if(channel.game.round > channel.settings.rounds) return;
                                     nextDrawer(socket, channel);
-                                }, 3000);
+                                }, 1000);
 
                                 return;
                             }
 
 
-                            if (new Date() > channel.game.expires) {
+                            if (d >= channel.game.expires) {
                                 nextDrawer(socket, channel);
                                 return;
                             }

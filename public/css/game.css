@@ -16,9 +16,9 @@ body::before{
     display: grid;
     grid-template-areas:    "settings chatzone";
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 600px;
+    grid-template-rows: 1fr;
     grid-gap: 1em;
-    margin: 2em;
+    margin: 2%;
     justify-content: center;
 }
 
@@ -26,9 +26,9 @@ body::before{
     display: grid;
     grid-template-areas:    "userzone drawzone chatzone" ". palette .";
     grid-template-columns: 1fr 600px 1fr;
-    grid-template-rows: 600px auto;
+    grid-template-rows: 600px 1fr;
     grid-gap: 1em;
-    margin: 2em;
+    margin: 2%;
     justify-content: center;
 }
 
@@ -38,7 +38,7 @@ body::before{
     .grid-game.started{
         grid-template-areas:  "drawzone chatzone" "palette userzone";
         grid-template-columns: 1fr;
-        grid-template-rows: auto;
+        grid-template-rows: 600px 1fr;
         margin: 1em 0;
     }
 }
@@ -48,7 +48,7 @@ body::before{
     .grid-game{
         grid-template-areas: "settings" "chatzone" ;
         grid-template-columns: 80%;
-        grid-template-rows: auto;
+        grid-template-rows: 1fr;
     }
 
     .grid-game.started{
@@ -64,7 +64,7 @@ body::before{
     .grid-game.started{
         grid-template-areas: "palette" "drawzone" "chatzone" "userzone" ;
         grid-template-columns: 90%;
-        grid-template-rows: auto;
+        grid-template-rows: min(600px, 100%, 1fr, auto);
     }
 }
 
@@ -72,6 +72,7 @@ body::before{
 
 .settings{
     grid-area: settings;
+    max-height: 600px;
 }
 
 .setting{
@@ -125,6 +126,7 @@ body::before{
 
 .userzone{
     grid-area: userzone;
+    max-height: 600px;
 }
 
 .userbox{
@@ -144,6 +146,7 @@ body::before{
 .chatzone{
     grid-area: chatzone;
     min-height: 400px;
+    max-height: 600px;
     display: grid;
     grid-template-areas: "title" "box" "input";
     grid-template-rows: auto 1fr auto;
@@ -158,8 +161,8 @@ body::before{
 
 .chatbox .message{
     padding: .3em 2em;
-    text-align: left !important;
     overflow-wrap: break-word;
+    text-align: left;
 }
 
 .chat-title{
@@ -182,7 +185,7 @@ body::before{
     padding-top: 100% !important;
     position: relative;
     grid-area: drawzone;
-    max-height: 100%;
+    max-height: 600px;
     max-width: 100%;
 }
 
@@ -201,6 +204,7 @@ body::before{
 .palette{
     padding: 1em !important;
     grid-area: palette;
+    max-height: 600px;
 }
 
 .colors{
@@ -259,4 +263,10 @@ body::before{
     text-transform: uppercase;
     font-weight: bold;
     margin: .5rem;
+}
+
+/* Footer link */
+
+.link {
+    grid-column: 1 / 3;
 }

@@ -15,12 +15,12 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             
             /* Register the channel */
             let game_id = uuid.v4();
-            let host = { username: socket.username, uuid: socket.uuid, points: 0, hasDrawn: false};
+            let host = { username: socket.username, uuid: socket.uuid };
             /* Push the channel object to the list */
             channels.push({
                 index: channels.length,
                 id: game_id,
-                host: {username: host.username, uuid: host.uuid},
+                host,
                 users: [],
                 settings: {
                     duration: 90,
@@ -74,7 +74,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     }
 
                     /* Register the joining user */
-                    channel.users.push({ username: socket.username, uuid: socket.uuid, points: 0, hasDrawn: false});
+                    channel.users.push({ username: socket.username, uuid: socket.uuid, score: 0, hasDrawn: false});
                     socket.channel = channel.id;
 
                     /* Join, get users and broadcast it in the channel */
@@ -138,8 +138,27 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             }
             
             if(channel.game.started){
-                if(channel.game.drawer.uuid == socket.uuid)
-                {
+                if(channel.users.length == 1){
+                    /* Reset the game propreties */
+                    channel.game = {
+                        started: false,
+                        round: 0,
+                        drawer: "",
+                        drawURL: "",
+                        words: {
+                            hint: "",
+                            picked: "",
+                            proposed: [],
+                            found: [],
+                        }
+                    };
+                    channel.expires = "";
+
+                    socket.to(channel.id).emit('game_end', { winner: channel.users[0].username, score: channel.users[0].score });
+                    return;
+                }
+
+                if(channel.game.drawer.uuid == socket.uuid){
                     clearTimeout(getTimers[channel.game.timer]);
                     nextDrawer(socket, channel);
                 }
@@ -173,7 +192,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
                 channel.game.started = true;
                 channel.game.round++;
-                
+
                 socket.emit('game_start');
                 socket.to(socket.channel).emit('game_start');
                 
@@ -234,8 +253,10 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
         let channel = channels.find(channel => channel.id == socket.channel);
         if (channel) {
-            if (new Date() >= channel.game.expires) {
-                nextDrawer(socket, channel);
+            if (channel.game.started) {
+                if (new Date() >= channel.game.expires) {
+                    nextDrawer(socket, channel);
+                }
             }
         } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });
     })

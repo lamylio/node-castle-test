@@ -57,11 +57,11 @@ for (let i = 0; i < colors.values.length; i++) {
 
 /* Palette events */
 
-for(color of document.querySelectorAll('.color')){
+for(let color of document.querySelectorAll('.color')){
     color.addEventListener('click', onColorUpdate, false);
 }
 
-for (tool of document.querySelectorAll('.tool')){
+for (let tool of document.querySelectorAll('.tool')){
     tool.addEventListener('click', onToolUpdate, false);
 }
 
@@ -71,10 +71,6 @@ range_pen_size.onchange = (e) => {
 }
 
 /* Socket */
-
-socket.on('lock_draw', () => {
-
-});
 
 socket.on('retrieve_drawing', throttle(retrieve, 10));
 

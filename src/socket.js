@@ -88,13 +88,18 @@ function isHost (socket) {
         /* Host check */
         if (channel.host.uuid == socket.uuid) {
             return true;
-        } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_host });
+        } else socket.emit('user_error', { errorTitle: this.ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: this.ERROR_MESSAGES.BODY.not_the_host });
 
-    } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });
+    } else socket.emit('user_error', { errorTitle: this.ERROR_MESSAGES.TITLES.game_not_found, errorMessage: this.ERROR_MESSAGES.BODY.game_not_found });
     return false;
 }
 
 function nextDrawer(socket, channel) {
+    if(channel.game.words.picked != ""){
+        socket.emit('reveal_word', { word: channel.game.words.picked });
+        socket.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
+    }
+    
     /* Reset the round propreties */
     channel.game.drawURL = "";
     channel.game.words.picked = "";
@@ -111,16 +116,20 @@ function nextDrawer(socket, channel) {
         /* Reset the user hasDrawn property */
         channel.users.map(user => { user.hasDrawn = false });
         if (channel.game.round < channel.settings.rounds) {
-            channel.game.round++;
             next_drawer = channel.users[0];
+            channel.game.round++;
+            socket.emit('new_round', { round: channel.game.round });
+            socket.to(channel.id).emit('new_round', { round: channel.game.round });
         } else {
             /* TODO - END THE GAME */
             channel.game.started = false;
             channel.game.drawer = "";
             channel.game.round = 0;
 
-            socket.emit('game_end', { winner: "WIP" });
-            socket.to(channel.id).emit('game_end', { winner: "WIP" });
+
+            let winner = channel.users.sort((a, b) => b.score - a.score)[0];
+            socket.emit('game_end', { winner: winner.username, score: winner.score });
+            socket.to(channel.id).emit('game_end', { winner: winner.username, score: winner.score });
             return;
         }
     }
@@ -139,7 +148,7 @@ function nextDrawer(socket, channel) {
     socket.emit('clean_drawing');
     socket.to(channel.id).emit('clean_drawing');
 
-    if (next_drawer.uuid == socket.uuid) socket.emit('pick_word', { words: channel.game.words.proposed });
+    if(socket.uuid == next_drawer.uuid) socket.emit('pick_word', { words: channel.game.words.proposed });
     else socket.broadcast.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
 
     let d = new Date();

@@ -122,6 +122,7 @@ function nextDrawer(socket, channel) {
             socket.to(channel.id).emit('next_round', { round: channel.game.round });
         } else {
             /* TODO - END THE GAME */
+            channel.users.map(user => { user.score = 0 });
             channel.game.started = false;
             channel.game.drawer = "";
             channel.game.round = 0;

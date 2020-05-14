@@ -33,10 +33,13 @@ socket.on('game_end', (message) => {
     let rankbox = document.querySelector('.rankbox');
     rankbox.textContent = '';
 
-    let i = 0;
+    let i = 1;
     for(u of rank){
+        let classes = ["user", "card"], content = `<br>${u.username} avec ${u.score} points`;
+        if(i <= 3) classes.push('yellow-text', 'text-darken-'+(4-i));
+        if(i == 1) content = "<i class='skicon-award'></i>" + content;
+        createCustomElement('li', rankbox, {class: classes, content});
         i++;
-        createCustomElement('li', rankbox, {class:["user", "card"], content: `[${i}]<br>${u.username} avec ${u.score} points`});
     }
     modal_pick.close();
     modal_rank.open();

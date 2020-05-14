@@ -34,8 +34,6 @@ socket.on('drawer_changed', (message) => {
     for (let u of document.querySelectorAll('.user')) u.style.color = 'initial';
     drawzone.setAttribute('disabled', '');
 
-    if (message.username == localStorage.username) drawzone.removeAttribute('disabled');
-
     document.querySelector(`.user[username=${message.username}]`).style.color = 'blue';
     createChatMessage({ console: true, content: `<b class="blue-text text-darken-3"><i class='skicon-pencil'></i> ${message.username} dessine.</b>` });
 

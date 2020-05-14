@@ -1,4 +1,4 @@
-const { sanitize, manulex, manulex_size } = require('../../app.js');
+const { sanitize, manulex } = require('../../app.js');
 const { nextDrawer, getTimers, isHost } = require('../socket.js');
 const uuid = require('uuid');
 
@@ -68,7 +68,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.token_already_exists, errorMessage: ERROR_MESSAGES.BODY.token_already_exists });
                             return;
                         }
-                        socket.username = manulex.noms_communs[Math.floor(Math.random() * manulex_size)];
+                        socket.username = manulex[Math.floor(Math.random() * manulex.length)];
                         socket.emit('username_already_taken', {username: socket.username});
                         socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.username_already_taken, errorMessage: ERROR_MESSAGES.BODY.username_already_taken });
                     }
@@ -232,8 +232,10 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 if (channel.game.drawer.uuid == socket.uuid) {
                     
                     let hidden_word = "";
-                    while(hidden_word.length < word.length) hidden_word += "_";
-
+                    for(let i = 0; i < word.length; i++) {
+                        if(word.charAt(i) == "-") hidden_word += "-";
+                        else hidden_word += "_";
+                    }
                     channel.game.words.picked = word;
                     channel.game.words.hint = hidden_word;
                     

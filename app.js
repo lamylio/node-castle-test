@@ -28,9 +28,8 @@ this.app.set('view engine', 'hbs');
 
 this.app.use('/public', this.express.static('public'));
 
-let manulex = fs.readFileSync(this.path.join(__dirname, "src", "manulex.json"));
+let manulex = fs.readFileSync(this.path.join(__dirname, "src", "manulex_clean.json"));
 module.exports.manulex = JSON.parse(manulex); 
-module.exports.manulex_size = this.manulex.noms_communs.length;
 
 /* Routes */
 require('./src/express.js');

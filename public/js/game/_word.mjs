@@ -20,6 +20,7 @@ socket.on('pick_word', (message) => {
     function chooseWord(word) {
         clearTimeout(time);
         socket.emit('word_picked', { word });
+        drawzone.removeAttribute('disabled');
         modal_pick.close();
     }
 })
@@ -46,5 +47,5 @@ socket.on('hint_word', (message) => {
 
 socket.on('word_found', (message) => {
     if (!message.username) return;
-    createChatMessage({ console: true, content: `<b class="orange-text text-darken-3"><i class='skicon-lightbulb'></i> ${message.username} a trouvé. (${message.score} pts)</b>` });
+    createChatMessage({ console: true, content: `<b class="orange-text text-darken-3"><i class='skicon-lightbulb'></i> ${message.username} a trouvé. (+${message.score} pts)</b>` });
 });

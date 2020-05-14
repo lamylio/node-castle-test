@@ -1,4 +1,4 @@
-const { io, sanitize, manulex, manulex_size} = require('../app.js');
+const { io, sanitize, manulex } = require('../app.js');
 
 module.exports.ERROR_MESSAGES = {
     TITLES: {
@@ -126,7 +126,6 @@ function nextDrawer(socket, channel) {
             channel.game.drawer = "";
             channel.game.round = 0;
 
-
             let winner = channel.users.sort((a, b) => b.score - a.score)[0];
             socket.emit('game_end', { winner: winner.username, score: winner.score });
             socket.to(channel.id).emit('game_end', { winner: winner.username, score: winner.score });
@@ -134,9 +133,9 @@ function nextDrawer(socket, channel) {
         }
     }
     channel.game.words.proposed = [
-        manulex.noms_communs[Math.floor(Math.random() * manulex_size)],
-        manulex.noms_communs[Math.floor(Math.random() * manulex_size)],
-        manulex.noms_communs[Math.floor(Math.random() * manulex_size)]
+        manulex[Math.floor(Math.random() * manulex.length)],
+        manulex[Math.floor(Math.random() * manulex.length)],
+        manulex[Math.floor(Math.random() * manulex.length)]
     ];
 
     next_drawer.hasDrawn = true;

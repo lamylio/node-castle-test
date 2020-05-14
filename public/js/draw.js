@@ -177,7 +177,6 @@ async function useTool(x0, y0, x1, y1) {
 /*  ----  */
 
 function resetDrawbox(){
-    context.clearRect(0, 0, drawbox.width, drawbox.height);
     socket.emit('clean_drawing');
 }
 

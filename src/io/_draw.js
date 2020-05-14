@@ -63,8 +63,9 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         return;
                     }
                     channel.game.drawURL = "";
+                    socket.emit('clean_drawing');
                     socket.to(socket.channel).emit('clean_drawing');
-                } socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_drawer });
+                }else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_drawer });
 
             } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_started, errorMessage: ERROR_MESSAGES.BODY.game_not_started });
         } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });

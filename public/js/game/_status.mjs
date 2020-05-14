@@ -11,6 +11,7 @@ socket.on('game_start', () => {
     createChatMessage({ console: true, content: `<b class="blue-grey-text text-darken-3"><i class="skicon-megaphone"></i> Début de partie</b>` });
     g.classList.add('started');
     changeBoxSize();
+    stopAudio(AUDIO.BACKGROUND);
 });
 
 socket.on('game_end', (message) => {
@@ -37,8 +38,11 @@ socket.on('game_end', (message) => {
     }
     modal_pick.close();
     modal_rank.open();
+    stopAudio(AUDIO.WORD_REVEAL);
+    playAudio(AUDIO.GAME_END);
     setTimeout(() => {
         modal_rank.close();
+        playAudio(AUDIO.BACKGROUND, true, 0.1);
     }, 5000);
 });
 
@@ -46,7 +50,9 @@ socket.on('next_round', (message) => {
     if (!message.round) return;
     createChatMessage({ console: true, content: `<b class="blue-grey-text text-darken-3 center-align"><i class="skicon-megaphone"></i> Round ${message.round}</b>` });
     document.querySelector('.round').textContent = `Round ${message.round}`;
-    playAudio(AUDIO.NEXT_ROUND);
+    setTimeout(() => {
+        playAudio(AUDIO.NEXT_ROUND);
+    }, 1500);
 })
 
 socket.on('settings_changed', (message) => {

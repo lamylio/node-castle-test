@@ -1,5 +1,6 @@
 
 socket.on('user_joined', (message) => {
+    playAudio(AUDIO.USER_JOIN);
     createChatMessage({ console: true, content: `<b class="green-text text-darken-3"><i class='skicon-plus-squared'></i> ${message.username} a rejoint.</b>` });
     addUserToList(message.username);
 });

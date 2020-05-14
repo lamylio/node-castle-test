@@ -34,6 +34,7 @@ socket.on('reveal_word', (message) => {
     setTimeout(() => {
         modal_reveal.close();
     }, 3000);
+    playAudio(AUDIO.WORD_REVEAL);
 })
 
 socket.on('hint_word', (message) => {

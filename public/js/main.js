@@ -5,13 +5,14 @@ const modal_reveal = M.Modal.init(document.querySelector('#reveal'), { startingT
 const modal_rank = M.Modal.init(document.querySelector('#rank'), { startingTop: '10%', endingTop: '20%' });
 
 const AUDIO = {
-    GAME_START: "",
-    GAME_END: "",
-    NEXT_ROUND: "next_round.mp3",
-    WORD_FOUND: "correct_answer.mp3",
-    PICK_WORD: "pick_word.wav",
-    WORD_REVEAL: "",
-    WINNER: ""
+    USER_JOIN: {path: "user_join.mp3"},
+    GAME_START: {path: ""},
+    GAME_END: {path: "congrats.flac"},
+    NEXT_ROUND: {path: "next_round.mp3"},
+    WORD_FOUND: {path: "correct_answer.mp3"},
+    PICK_WORD: {path: "pick_word.wav"},
+    WORD_REVEAL: {path: "word_reveal.wav"},
+    BACKGROUND: {path: "background.mp3"},
 }
 
 socket.on('disconnect', (reason) => {
@@ -85,8 +86,20 @@ function dynamicallyLoadScript(url) {
     document.head.appendChild(script);
 }
 
-function playAudio(audio){
-    new Audio("/public/audio/"+audio).play();
+
+for (au in AUDIO) {
+    AUDIO[au].audio = new Audio("/public/audio/" + AUDIO[au].path);
+}
+
+function playAudio(audio, loop = false, volume = 1){
+    let a = audio.audio;
+    a.loop = loop;
+    a.volume = volume;
+    a.play();
+}
+
+function stopAudio(audio){
+    audio.audio.pause();
 }
 
 function timeout(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }

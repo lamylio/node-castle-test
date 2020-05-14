@@ -7,6 +7,7 @@ socket.on('game_start', () => {
     }
     document.querySelector('.link').setAttribute('invisible', '');
     document.querySelector('.settings').setAttribute('invisible', '');
+    document.querySelector('header').removeAttribute('invisible');
     document.querySelector('.round').textContent = 'Round 1';
     createChatMessage({ console: true, content: `<b class="blue-grey-text text-darken-3"><i class="skicon-megaphone"></i> Début de partie</b>` });
     g.classList.add('started');
@@ -24,6 +25,7 @@ socket.on('game_end', (message) => {
     }
     document.querySelector('.link').removeAttribute('invisible');
     document.querySelector('.settings').removeAttribute('invisible');
+    document.querySelector('header').setAttribute('invisible', '');
     document.querySelector('.round').textContent = '';
     document.querySelector('.hint').textContent = '';
     g.classList.remove('started');

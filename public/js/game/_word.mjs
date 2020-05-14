@@ -20,17 +20,21 @@ socket.on('pick_word', (message) => {
 
     function chooseWord(word) {
         clearTimeout(time);
+        document.querySelector(".tool").onclick();
         socket.emit('word_picked', { word });
         drawzone.removeAttribute('disabled');
         modal_pick.close();
     }
 })
 
+let timer_interval;
+
 socket.on('reveal_word', (message) => {
     if (!message.word) return;
     let reveal = document.querySelector('.reveal.word');
     reveal.textContent = message.word;
     modal_reveal.open();
+    clearInterval(timer_interval);
     setTimeout(() => {
         modal_reveal.close();
     }, 3000);
@@ -44,6 +48,17 @@ socket.on('hint_word', (message) => {
     for (let ch of message.word) {
         createCustomElement('li', hint, { class: ["letter"], content: ch });
     }
+    let duration = parseInt(document.querySelector(`.setting input[name='duration']`).value);
+    let timer = document.querySelector('header .timer');
+    timer.innerText = duration--;
+    timer_interval = setInterval(() => {
+        if(timer.innerText == 0){
+            clearInterval(timer_interval);
+            socket.emit('time_out');
+        }else {
+            timer.innerText = duration--;
+        }
+    }, 1000);
 });
 
 socket.on('word_found', (message) => {

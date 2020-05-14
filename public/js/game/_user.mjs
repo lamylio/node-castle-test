@@ -45,5 +45,5 @@ socket.on('drawer_changed', (message) => {
 function addUserToList(username) {
     createCustomElement('i',
         createCustomElement('li', document.querySelector('.userbox'), { class: ['user', 'card'], content: username, username: username }),
-        { class: ['skicon-user-circle'] });
+    { class: ['skicon-user-circle'] });
 }

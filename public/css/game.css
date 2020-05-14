@@ -259,6 +259,10 @@ body::before{
     text-transform: uppercase;
 }
 
+.hint{
+    margin: 0;
+}
+
 .hint .letter{
     display: inline-block;
     text-transform: uppercase;
@@ -276,4 +280,28 @@ body::before{
     overflow: hidden;
     height: 1.5rem;
     resize:none;
+}
+
+header{
+    display: grid;
+    grid-template-areas: ". round" "timer hint";
+    grid-template-columns: 100px 1fr 100px;
+    grid-template-rows: 50px 80px;
+    margin: auto 5%;
+    align-items: center;
+}
+
+header .round{
+    grid-area: round;
+}
+
+header h5{
+    grid-area: hint;
+    margin: 0;
+}
+
+header .timer{
+    grid-area: timer;
+    margin: 0;
+    outline: 1px solid darkgray;
 }

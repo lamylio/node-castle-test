@@ -31,7 +31,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         let d = new Date();
                         /* If he's a guesser check if word is valid or wrong 
                         
-                        I could get rid of all the accent 
+                        I could get rid of all the accent by using
                         content.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                         See https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript/37511463#37511463 
                         
@@ -39,7 +39,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         */
                         
                         if (channel.game.words.picked.localeCompare(content.trim(), 'fr', { sensitivity: 'base' }) == 0){
-                            if (channel.game.words.found.some(uuid => uuid == socket.uuid)) return;
+                            if (channel.game.words.found.some(uuid => uuid == socket.uuid) || channel.game.drawer.uuid == socket.uuid) return;
                             channel.game.words.found.push(socket.uuid);
 
                             let user = channel.users.find(user => user.uuid == socket.uuid);

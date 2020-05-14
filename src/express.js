@@ -1,4 +1,4 @@
-const {express, app, sanitize, path} = require('../app.js');
+const {express, app, sanitize, path, manulex} = require('../app.js');
 let { getChannels } = require('./socket.js');
 
 app.use(express.json());
@@ -13,7 +13,8 @@ app.get('/favicon.ico', (req, res) => {
 app.get(['/', '/game'], (req, res) => {
     res.render('index', {
         title: "Skribb.lio",
-        scripts: ["index.js"]
+        scripts: ["index.js"],
+        manulex: manulex.length,
     });
 });
 
@@ -22,22 +23,6 @@ app.post('/sanitize', (req, res) => {
 })
 
 /* ----- */
-
-app.get('/channels', (req, res) =>{
-    res.jsonp(getChannels());
-})
-
-app.get('/channel/:id?', (req, res, next) => {
-    let id = sanitize(req.params.id, { allowedTags: [] });
-    if (id.length == 36) {
-        let channel = getChannels().find(channel => channel.id == id);
-        if (channel) {
-            res.jsonp(channel);
-            return;
-        }
-    }
-    next();
-});
 
 app.get('/game/:id?', (req, res, next) => {
     /* Check id */

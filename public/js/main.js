@@ -32,6 +32,9 @@ socket.on('disconnect', (reason) => {
             break;
     }
     showErrorMessage({errorTitle: "Vous êtes déconnecté", errorMessage: "Raison : " + reason});
+    setTimeout(() => {
+        window.location = "/";
+    }, 3000);
 })
 
 socket.emit('identity', {token: localStorage.token});

@@ -35,7 +35,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             But Imma use the .localeCompare which is fine too.
                             */
                             
-                            if (channel.game.words.picked.localeCompare(content, 'fr', { sensitivity: 'base' }) == 0){
+                            if (channel.game.words.picked.localeCompare(content.trim(), 'fr', { sensitivity: 'base' }) == 0){
                                 channel.game.words.found.push(socket.uuid);
 
                                 let user = channel.users.find(user => user.uuid == socket.uuid);

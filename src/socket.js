@@ -118,8 +118,8 @@ function nextDrawer(socket, channel) {
         if (channel.game.round < channel.settings.rounds) {
             next_drawer = channel.users[0];
             channel.game.round++;
-            socket.emit('new_round', { round: channel.game.round });
-            socket.to(channel.id).emit('new_round', { round: channel.game.round });
+            socket.emit('next_round', { round: channel.game.round });
+            socket.to(channel.id).emit('next_round', { round: channel.game.round });
         } else {
             /* TODO - END THE GAME */
             channel.game.started = false;
@@ -151,7 +151,8 @@ function nextDrawer(socket, channel) {
     else socket.broadcast.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
 
     let d = new Date();
-    d = new Date(d.getTime() + (1000 * parseInt(channel.settings.duration)));
+    /* 5 seconds more bc lag */
+    d = new Date(d.getTime() + (1000 * (5+parseInt(channel.settings.duration))));
     channel.game.expires = d;
 }
 

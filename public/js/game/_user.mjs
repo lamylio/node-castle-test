@@ -31,10 +31,10 @@ socket.on('host_changed', (message) => {
 });
 
 socket.on('drawer_changed', (message) => {
-    for (let u of document.querySelectorAll('.user')) u.style.color = 'initial';
+    for (let u of document.querySelectorAll('.user')) u.classList.remove('blue-text', 'text-darken-3');
     drawzone.setAttribute('disabled', '');
 
-    document.querySelector(`.user[username=${message.username}]`).style.color = 'blue';
+    document.querySelector(`.user[username=${message.username}]`).classList.add('blue-text', 'text-darken-3');
     createChatMessage({ console: true, content: `<b class="blue-text text-darken-3"><i class='skicon-pencil'></i> ${message.username} dessine.</b>` });
 
     setTimeout(() => {

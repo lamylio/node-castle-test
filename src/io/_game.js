@@ -142,6 +142,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             if(channel.game.started){
                 if(channel.users.length == 1){
                     /* Reset the game propreties */
+                    socket.to(channel.id).emit('game_end', { rank: [{username: channel.users[0].username, score: channel.users[0].score}]});
                     channel.game = {
                         started: false,
                         round: 0,
@@ -155,8 +156,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         }
                     };
                     channel.expires = "";
-
-                    socket.to(channel.id).emit('game_end', { rank: [{username: channel.users[0].username, score: channel.users[0].score}]});
+                    channel.users[0].score = 0;
+                    channel.users[0].hasDrawn = false;
                     return;
                 }
 

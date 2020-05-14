@@ -28,8 +28,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             }
                         }
 
-
-                        if(channel.game.words.found.some(uuid => uuid == socket.uuid)) return;
                         let d = new Date();
                         /* If he's a guesser check if word is valid or wrong 
                         
@@ -41,11 +39,12 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         */
                         
                         if (channel.game.words.picked.localeCompare(content.trim(), 'fr', { sensitivity: 'base' }) == 0){
+                            if (channel.game.words.found.some(uuid => uuid == socket.uuid)) return;
                             channel.game.words.found.push(socket.uuid);
 
                             let user = channel.users.find(user => user.uuid == socket.uuid);
                             let drawer = channel.users.find(user => user.uuid == channel.game.drawer.uuid);
-                            let increase = Math.floor((channel.game.expires - d) / (10 * (channel.settings.duration / 2)));
+                            let increase = Math.floor(Math.abs((channel.game.expires - d)) / (10 * (channel.settings.duration / 2)));
                             user.score += increase;
                             drawer.score += Math.floor(increase/(channel.users.length+1.5));
                             

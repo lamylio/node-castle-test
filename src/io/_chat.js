@@ -28,6 +28,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             }
                         }
 
+
+                        if(channel.game.words.found.some(socket.uuid)) return;
                         let d = new Date();
                         /* If he's a guesser check if word is valid or wrong 
                         

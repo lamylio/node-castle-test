@@ -1,5 +1,6 @@
 socket.on('pick_word', (message) => {
     if (!message.words) return;
+    playAudio(AUDIO.PICK_WORD);
     let words = document.querySelector('.words');
     words.textContent = '';
     for (let w of message.words) {
@@ -46,5 +47,6 @@ socket.on('hint_word', (message) => {
 
 socket.on('word_found', (message) => {
     if (!message.username) return;
+    playAudio(AUDIO.WORD_FOUND);
     createChatMessage({ console: true, content: `<b class="orange-text text-darken-3"><i class='skicon-lightbulb'></i> ${message.username} a trouvé. (+${message.score} pts)</b>` });
 });

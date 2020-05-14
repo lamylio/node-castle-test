@@ -46,6 +46,7 @@ socket.on('next_round', (message) => {
     if (!message.round) return;
     createChatMessage({ console: true, content: `<b class="blue-grey-text text-darken-3 center-align"><i class="skicon-megaphone"></i> Round ${message.round}</b>` });
     document.querySelector('.round').textContent = `Round ${message.round}`;
+    playAudio(AUDIO.NEXT_ROUND);
 })
 
 socket.on('settings_changed', (message) => {

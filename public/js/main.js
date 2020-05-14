@@ -4,6 +4,16 @@ const modal_pick = M.Modal.init(document.querySelector('#pick'), { dismissible: 
 const modal_reveal = M.Modal.init(document.querySelector('#reveal'), { startingTop: '10%', endingTop: '20%' });
 const modal_rank = M.Modal.init(document.querySelector('#rank'), { startingTop: '10%', endingTop: '20%' });
 
+const AUDIO = {
+    GAME_START: "",
+    GAME_END: "",
+    NEXT_ROUND: "next_round.mp3",
+    WORD_FOUND: "correct_answer.mp3",
+    PICK_WORD: "pick_word.wav",
+    WORD_REVEAL: "",
+    WINNER: ""
+}
+
 socket.on('disconnect', (reason) => {
     switch (reason) {
         case 'ping timeout':
@@ -73,6 +83,10 @@ function dynamicallyLoadScript(url) {
     var script = document.createElement("script"); 
     script.src = url; 
     document.head.appendChild(script);
+}
+
+function playAudio(audio){
+    new Audio("/public/audio/"+audio).play();
 }
 
 function timeout(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }

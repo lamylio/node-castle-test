@@ -122,14 +122,21 @@ function nextDrawer(socket, channel) {
             socket.to(channel.id).emit('next_round', { round: channel.game.round });
         } else {
             /* TODO - END THE GAME */
-            channel.users.map(user => { user.score = 0 });
+        
+            let ordered = channel.users.sort((a, b) => b.score - a.score);
+            let rank = [];
+            for(u of ordered){
+                rank.push({username: u.username, score: u.score});
+            }
+
+            console.log(rank);
+            socket.emit('game_end', { rank });
+            socket.to(channel.id).emit('game_end', { rank });
+
             channel.game.started = false;
             channel.game.drawer = "";
             channel.game.round = 0;
-
-            let winner = channel.users.sort((a, b) => b.score - a.score)[0];
-            socket.emit('game_end', { winner: winner.username, score: winner.score });
-            socket.to(channel.id).emit('game_end', { winner: winner.username, score: winner.score });
+            channel.users.map(user => { user.score = 0 });
             return;
         }
     }
@@ -153,7 +160,7 @@ function nextDrawer(socket, channel) {
 
     let d = new Date();
     /* 5 seconds more bc lag */
-    d = new Date(d.getTime() + (1000 * (5+parseInt(channel.settings.duration))));
+    d = new Date(d.getTime() + (1000 * (5 + parseInt(channel.settings.duration))));
     channel.game.expires = d;
 }
 

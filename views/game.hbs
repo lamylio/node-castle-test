@@ -30,6 +30,15 @@
     </div> 
 </div>
 
+<div id="rank" class="modal">
+    <div class="modal-content">
+        <h4 class="header text-center">Classement de la partie</h4>
+        <ul class="rankbox">
+
+        </ul>
+    </div> 
+</div>
+
 <div class="grid-game">
 
     <div class="userzone card-panel" invisible>
@@ -58,6 +67,19 @@
             <button onclick="let bu = this.nextElementSibling; bu.stepDown();  changeSetting(bu);" disabled></button>
             <input type="number" name="duration" id="input_setting_round_duration" min="30" max="180" value="90" step="10" disabled>
             <button onclick="let bu = this.previousElementSibling; bu.stepUp();  changeSetting(bu);" disabled></button>
+        </div>
+
+        <h6>Bloquer le chat</h6>
+        <small>(Au dessinateur et à ceux qui ont trouvé le mot)</small>
+        <div class="section setting">
+            <div class="switch">
+                <label>
+                    Off
+                    <input type="checkbox" name="cannot_talk" id="input_setting_talk" disabled>
+                    <span class="lever"></span>
+                    On
+                </label>
+            </div>
         </div>
 
         <div class="section">

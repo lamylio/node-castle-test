@@ -24,7 +24,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 users: [],
                 settings: {
                     duration: 90,
-                    rounds: 3
+                    rounds: 3,
+                    cannot_talk: "false",
                 },
                 game: {
                     started: false,
@@ -154,7 +155,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     };
                     channel.expires = "";
 
-                    socket.to(channel.id).emit('game_end', { winner: channel.users[0].username, score: channel.users[0].score });
+                    socket.to(channel.id).emit('game_end', { rank: [{username: channel.users[0].username, score: channel.users[0].score}]});
                     return;
                 }
 
@@ -204,7 +205,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
     socket.on('change_setting', (message) => {
         if (!socket.uuid || !socket.channel) return;
-        if(message.setting.name && message.setting.value) {
+        if(message.setting.name && message.setting.value != undefined) {
 
             if (isHost(socket)) {
                 let name = sanitize(message.setting.name, { allowedTags: [] });
@@ -242,6 +243,11 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     socket.emit('hint_word', {word});
                     socket.to(channel.id).emit('hint_word', {word: hidden_word});
 
+                    let drawer = socket.uuid;
+                    let round = channel.game.round;
+                    setTimeout(() => {
+                        if (new Date() < channel.game.expires && drawer == channel.game.drawer.uuid && round == channel.game.round) nextDrawer(socket, channel);
+                    }, (1000 * (parseInt(channel.settings.duration))));
 
                 } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_drawer });
             
@@ -252,16 +258,11 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
     socket.on('time_out', () => {
         if (!socket.uuid || !socket.channel || !socket.username) return;
-        console.log("Time out asked by %s", socket.username);
         let channel = channels.find(channel => channel.id == socket.channel);
         if (channel) {
             if (channel.game.started) {
-                console.log("Time out started checked");
                 if (new Date() >= channel.game.expires) {
                     nextDrawer(socket, channel);
-                }else{
-                    console.log("Time out date uncheked");
-                    console.log("%s < %s", new Date(), channel.game.expires);
                 }
             }
         } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });

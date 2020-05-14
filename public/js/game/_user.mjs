@@ -27,6 +27,7 @@ socket.on('host_changed', (message) => {
             e.removeAttribute('disabled');
         }
     }
+    document.querySelector("#input_setting_talk").removeAttribute('disabled');
     document.querySelector("#button_start_game").removeAttribute('disabled');
 });
 

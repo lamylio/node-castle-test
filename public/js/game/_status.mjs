@@ -14,7 +14,8 @@ socket.on('game_start', () => {
 });
 
 socket.on('game_end', (message) => {
-    createChatMessage({ console: true, content: `<b class="yellow-text text-darken-3"><i class='skicon-award'></i> ${message.winner} a gagné avec ${message.score} points !</b>` });
+    let rank = message.rank;
+    createChatMessage({ console: true, content: `<b class="yellow-text text-darken-3"><i class='skicon-award'></i> ${rank[0].username} a gagné avec ${rank[0].score} points !</b>` });
     let g = document.querySelector('.grid-game');
     for (let ch of g.children) {
         if (ch.classList.contains("chatzone")) continue;
@@ -25,6 +26,20 @@ socket.on('game_end', (message) => {
     document.querySelector('.round').textContent = '';
     document.querySelector('.hint').textContent = '';
     g.classList.remove('started');
+
+    let rankbox = document.querySelector('.rankbox');
+    rankbox.textContent = '';
+
+    let i = 0;
+    for(u of rank){
+        i++;
+        createCustomElement('li', rankbox, {class:["user", "card"], content: `[${i}]<br>${u.username} avec ${u.score} points`});
+    }
+    modal_pick.close();
+    modal_rank.open();
+    setTimeout(() => {
+        modal_rank.close();
+    }, 5000);
 });
 
 socket.on('next_round', (message) => {
@@ -37,12 +52,20 @@ socket.on('settings_changed', (message) => {
     if (message.settings) {
         document.querySelector(`.setting input[name='duration']`).value = message.settings.duration;
         document.querySelector(`.setting input[name='rounds']`).value = message.settings.rounds;
+        document.querySelector(`.setting input[name='cannot_talk']`).checked = message.settings.cannot_talk == "true" ? true : false;
     }
 });
+
+const input_settings = document.querySelectorAll(".setting input");
+for (let setting of input_settings) {
+    setting.onchange = (e) => { changeSetting(e.srcElement) }
+}
 
 function changeSetting(e){
     if (e.hasAttribute('disabled')) return;
     let name = e.getAttribute('name');
-    let value = e.value;
+    let value = false;
+    if(e.type == "checkbox") value = e.checked;
+    else value = e.value;
     socket.emit('change_setting', { setting: { name, value } });
 }

@@ -249,7 +249,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     let round = channel.game.round;
                     setTimeout(() => {
                         if (new Date() < channel.game.expires && drawer == channel.game.drawer.uuid && round == channel.game.round) nextDrawer(socket, channel);
-                    }, (1000 * (1 +parseInt(channel.settings.duration))));
+                    }, (1000 * (2 + parseInt(channel.settings.duration))));
 
                 } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_drawer });
             

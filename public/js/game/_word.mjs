@@ -52,10 +52,10 @@ socket.on('hint_word', (message) => {
     let timer = document.querySelector('header .timer');
     timer.innerText = duration--;
     timer_interval = setInterval(() => {
-        if(timer.innerText == 0){
+        if (timer.innerText == 0) {
             clearInterval(timer_interval);
             socket.emit('time_out');
-        }else {
+        } else {
             timer.innerText = duration--;
         }
     }, 1000);

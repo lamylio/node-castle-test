@@ -6,6 +6,7 @@ const modal_rank = M.Modal.init(document.querySelector('#rank'), { startingTop: 
 
 const AUDIO = {
     USER_JOIN: {path: "user_join.mp3"},
+    USER_LEFT: {path: ""},
     GAME_START: {path: ""},
     GAME_END: {path: "congrats.flac"},
     NEXT_ROUND: {path: "next_round.mp3"},

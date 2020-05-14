@@ -1,10 +1,14 @@
-const {express, app, sanitize} = require('../app.js');
+const {express, app, sanitize, path} = require('../app.js');
 let { getChannels } = require('./socket.js');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /* Routes */
+
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../public/images/favicon.ico'));
+})
 
 app.get(['/', '/game'], (req, res) => {
     res.render('index', {

@@ -1,5 +1,5 @@
 const { sanitize, manulex } = require('../../app.js');
-const { nextDrawer, getTimers, isHost } = require('../socket.js');
+const { nextDrawer, getTimers, isHost, getUsersByScore } = require('../socket.js');
 const uuid = require('uuid');
 
 /* ----- CHANNELS EVENTS ----- */
@@ -82,11 +82,11 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     socket.join(socket.uuid);
                     socket.join(socket.channel);
 
-                    socket.emit('user_list', { 
-                        users: channel.users.filter(user => {if(user.username != socket.username) return user.username})
-                    });
                     socket.emit('user_joined', { username: socket.username });
                     socket.to(socket.channel).emit('user_joined', { username: socket.username });
+
+                    socket.emit('list_users', { users: getUsersByScore(channel) });
+                    socket.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
 
                     /* Unlock the channel when the host join */
                     if (channel.host.uuid == socket.uuid) {
@@ -100,10 +100,9 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         socket.emit('drawer_changed', { username: channel.game.drawer.username })
                         socket.emit('retrieve_drawing', { url: channel.game.drawURL });
                         if(channel.game.words.picked != "")
-                        socket.emit('reveal_word', { word: channel.game.words.hint });
-                    }else{
-                        socket.emit('settings_changed', {settings: channel.settings});
+                        socket.emit('hint_word', { word: channel.game.words.hint });
                     }
+                    socket.emit('settings_changed', {settings: channel.settings});
 
                 } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });
             } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_format, errorMessage: ERROR_MESSAGES.BODY.wrong_format });        
@@ -131,7 +130,9 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
             /* Otherwise continue */
             socket.to(channel.id).emit('user_left', { username: socket.username });
-
+            socket.emit('list_users', { users: getUsersByScore(channel) });
+            socket.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
+            
             /* If he was the host replace him by the next one */
             if (channel.host.username == socket.username) {
                 channel.host = channel.users[0];

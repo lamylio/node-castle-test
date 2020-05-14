@@ -1,5 +1,5 @@
 const { sanitize } = require('../../app.js');
-const { nextDrawer } = require('../socket.js');
+const { nextDrawer, getUsersByScore } = require('../socket.js');
 
 /* ----- CHAT EVENTS ----- */
 module.exports = function (socket, channels, ERROR_MESSAGES) {
@@ -45,10 +45,13 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             let drawer = channel.users.find(user => user.uuid == channel.game.drawer.uuid);
                             let increase = Math.floor((channel.game.expires - d) / (10 * (channel.settings.duration / 2)));
                             user.score += increase;
-                            drawer.score += Math.floor(increase/(channel.users.length+1));
+                            drawer.score += Math.floor(increase/(channel.users.length+1.5));
                             
                             socket.emit('word_found', { username: socket.username, score: increase });
                             socket.to(channel.id).emit('word_found', { username: socket.username, score: increase});
+                            
+                            socket.emit('list_users', { users: getUsersByScore(channel) });
+                            socket.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
                             
                             setTimeout(() => {
                                 if(channel.game.words.found.length < channel.users.length-1) return;

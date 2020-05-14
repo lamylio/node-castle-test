@@ -123,15 +123,8 @@ function nextDrawer(socket, channel) {
         } else {
             /* TODO - END THE GAME */
         
-            let ordered = channel.users.sort((a, b) => b.score - a.score);
-            let rank = [];
-            for(u of ordered){
-                rank.push({username: u.username, score: u.score});
-            }
-
-            console.log(rank);
-            socket.emit('game_end', { rank });
-            socket.to(channel.id).emit('game_end', { rank });
+            socket.emit('game_end', { rank: getUsersByScore(channel) });
+            socket.to(channel.id).emit('game_end', { rank: getUsersByScore(channel) });
 
             channel.game.started = false;
             channel.game.drawer = "";
@@ -152,6 +145,9 @@ function nextDrawer(socket, channel) {
     socket.emit('drawer_changed', { username: next_drawer.username });
     socket.to(channel.id).emit('drawer_changed', { username: next_drawer.username });
 
+    socket.emit('list_users', { users: getUsersByScore(channel) });
+    socket.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
+
     socket.emit('clean_drawing');
     socket.to(channel.id).emit('clean_drawing');
 
@@ -164,4 +160,14 @@ function nextDrawer(socket, channel) {
     channel.game.expires = d;
 }
 
-module.exports = { getChannels, getTimers, nextDrawer: nextDrawer, isHost }
+
+function getUsersByScore(channel){
+    let ordered = channel.users.sort((a, b) => b.score - a.score);
+    let rank = [];
+    for (u of ordered) {
+        rank.push({ username: u.username, score: u.score, drawer: u.uuid==channel.game.drawer.uuid });
+    }
+    return rank;
+}
+
+module.exports = { getChannels, getTimers, nextDrawer, getUsersByScore, isHost }

@@ -5,6 +5,7 @@ socket.on('game_start', () => {
     for (let ch of g.children) {
         if (ch.hasAttribute('invisible')) ch.removeAttribute('invisible');
     }
+    document.querySelector('.link').setAttribute('invisible', '');
     document.querySelector('.settings').setAttribute('invisible', '');
     document.querySelector('.round').textContent = 'Round 1';
     createChatMessage({ console: true, content: `<b class="blue-grey-text text-darken-3"><i class="skicon-megaphone"></i> Début de partie</b>` });
@@ -19,6 +20,7 @@ socket.on('game_end', (message) => {
         if (ch.classList.contains("chatzone")) continue;
         if (!ch.hasAttribute('invisible')) ch.setAttribute('invisible', '');
     }
+    document.querySelector('.link').removeAttribute('invisible');
     document.querySelector('.settings').removeAttribute('invisible');
     document.querySelector('.round').textContent = '';
     document.querySelector('.hint').textContent = '';

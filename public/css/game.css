@@ -270,3 +270,10 @@ body::before{
 .link {
     grid-column: 1 / 3;
 }
+
+.link textarea{
+    overflow: hidden;
+    width: 40rem;
+    height: 1.5rem;
+    resize:none;
+}

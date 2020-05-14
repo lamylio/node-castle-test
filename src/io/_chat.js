@@ -39,7 +39,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                                 channel.game.words.found.push(socket.uuid);
 
                                 let user = channel.users.find(user => user.uuid == socket.uuid);
-                                let drawer = channel.users.find(user => user.uuid == channel.words.drawer.uuid);
+                                let drawer = channel.users.find(user => user.uuid == channel.game.drawer.uuid);
                                 let increase = Math.round((channel.game.expires - d) / (10 * (channel.settings.duration / 2)));
                                 user.score += increase;
                                 drawer.score += increase/channel.users.length;

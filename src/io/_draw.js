@@ -48,4 +48,28 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
     });
 
+    socket.on('clean_drawing', () => {
+        if(!socket.username || !socket.uuid || !socket.channel) return;
+        /* Check if user current channel exists */
+        let channel = channels.find(chan => chan.id == socket.channel);
+        if (channel) {
+            /* Check if game's started */
+            if (channel.game.started) {
+                /* Check if he's the drawer */
+                if (channel.game.drawer.uuid == socket.uuid) {
+
+                    if (new Date() >= channel.game.expires) {
+                        nextDrawer(socket, channel);
+                        return;
+                    }
+                    channel.game.drawURL = "";
+                    socket.to(socket.channel).emit('clean_drawing');
+                } socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_drawer });
+
+            } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_started, errorMessage: ERROR_MESSAGES.BODY.game_not_started });
+        } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });
+
+
+    })
+
 }

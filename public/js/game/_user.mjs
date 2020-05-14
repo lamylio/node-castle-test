@@ -36,10 +36,6 @@ socket.on('drawer_changed', (message) => {
 
     document.querySelector(`.user[username=${message.username}]`).classList.add('blue-text', 'text-darken-3');
     createChatMessage({ console: true, content: `<b class="blue-text text-darken-3"><i class='skicon-pencil'></i> ${message.username} dessine.</b>` });
-
-    setTimeout(() => {
-        socket.emit('time_out');
-    }, 1000 * document.querySelector(`.setting input[name='duration']`).value);
 });
 
 /* --- */

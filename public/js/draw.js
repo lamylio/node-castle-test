@@ -15,18 +15,15 @@ const colors = {
 let context = drawbox.getContext('2d');
 context.imageSmoothingEnabled = false;
 
-/* TEMP */
-let canDraw = false;
-
 const TOOLS = {
     PEN: 0,
-    ERASER: 1,
-    BUCKET: 2
+    BUCKET: 1
 }
 
 let drawing = false;
+let bucket = false;
 let current = {
-    color: 'black',
+    color: '#111000',
     size: 3,
     tool: TOOLS.PEN
 };
@@ -57,17 +54,13 @@ for (let i = 0; i < colors.values.length; i++) {
 
 /* Palette events */
 
-for(let color of document.querySelectorAll('.color')){
-    color.addEventListener('click', onColorUpdate, false);
-}
-
-for (let tool of document.querySelectorAll('.tool')){
-    tool.addEventListener('click', onToolUpdate, false);
+for(color of document.querySelectorAll('.colors')){
+    color.addEventListener('click', onColorUpdate);
 }
 
 const range_pen_size = document.querySelector('#input_pen_size');
 range_pen_size.onchange = (e) => {
-    current.size = parseInt(e.target.value)||2;
+    current.size = parseInt(e.target.value)*4||8;
 }
 
 /* Socket */
@@ -84,31 +77,88 @@ function retrieve(message){
     }
 }
 
-socket.on('clean_drawing', () => {
-    context.clearRect(0, 0, drawbox.width, drawbox.height);
-});
+socket.on('clean_drawing', () => {context.clearRect(0, 0, drawbox.width, drawbox.height)});
 
 
 /* ----- */
 
-function drawLine(x0, y0, x1, y1, color, size, tool) {
+async function useTool(x0, y0, x1, y1) {
+    context.fillStyle = current.color;
+    context.strokeStyle = current.color;
+    context.lineWidth = current.size;
 
-    switch (tool) {
-        case TOOLS.ERASE:
-            /* Don't do anything */
-        break;
-        
+    switch (current.tool) {      
         case TOOLS.BUCKET:
-        
-        break;
+            if(bucket) return;
+            console.log("Bucket started");
+            const factor = 2;
+            current.layer = context.getImageData(0,0, drawbox.width, drawbox.height);
 
+            let startPos = (y1 * drawbox.width + x1) * 4;
+            let startColor = [current.layer.data[startPos], current.layer.data[startPos + 1], current.layer.data[startPos + 2]];
+            let newColor = hexToRGB(current.color.slice(1));
+            if(startColor == newColor) return; /* Same color */
+            bucket = true;
+            let stack = [[x1, y1]];
+        
+            while(stack.length){
+                let pos = stack.pop();
+                let x = pos[0];
+                let y = pos[1];
+
+                let pixel = (y * drawbox.width + x) * 4;
+                /* We're slowly going upward until we hit the border of a color that doesnt match */
+                while (matchColor(pixel, startColor) && y >= 0){
+                    y -= factor;
+                    pixel -= drawbox.width * 4 * factor;
+                }
+                /* Going down now */
+                colorPixel(pixel, startColor);
+
+                let left = false, right = false;
+                while(matchColor(pixel, startColor) && y < drawbox.height-1){
+                    if (drawzone.hasAttribute('disabled')) { return }
+                    y += factor;
+                    colorPixel(pixel, newColor);
+                    context.beginPath();
+                    context.arc(x, y, current.size / 2 + 0.05, 0, 2 * Math.PI);
+                    //context.rect(x, y, factor-1, factor-1);
+                    context.fill();
+                    context.closePath();
+                    
+                    //await timeout(0);
+                    /* Look left first */
+                    if(x > 0){
+                        /* Push the column to the stack */
+                        if (matchColor(pixel - (4), startColor)){
+                            if(!left){
+                                stack.push([x - 1, y]);
+                                left = true;
+                            }
+                        }else if(left) left = false;
+                        /* If we hit a not-match, reset left check */
+                    }
+
+                    /* Look right then */
+                    if(x < drawbox.width-1){
+                        if (matchColor(pixel + (4), startColor)){
+                            if(!right){
+                                stack.push([x + 1, y]);
+                                right = true;
+                            }
+                        }else if(right) right = false;
+                    }
+
+                    pixel += drawbox.width * 4 * factor;
+                }
+            }
+            //context.putImageData(current.layer, 0, 0);
+            bucket = false;
+            console.log("Bucket done");
+        break;
         case TOOLS.PEN:
         default:
-            context.fillStyle = color;
-            context.strokeStyle = color;
-            context.lineWidth = size;
-        
-            context.arc(x0, y0, size/2, 0, 2*Math.PI);
+            context.arc(x0, y0, current.size/2, 0, 2*Math.PI);
             context.fill();
         
             context.beginPath();
@@ -120,20 +170,30 @@ function drawLine(x0, y0, x1, y1, color, size, tool) {
     }
 
     socket.emit('drawing', {
-        token: localStorage.token,
-        channel: game_id,
         url: drawbox.toDataURL()
     });
 }
 
 /*  ----  */
 
+function resetDrawbox(){
+    context.clearRect(0, 0, drawbox.width, drawbox.height);
+    socket.emit('clean_drawing');
+}
+
 function onColorUpdate(e) {
-    current.color = e.target.getAttribute('color');
+    current.color = e.srcElement.getAttribute('color');
 }
 
 function onToolUpdate(e){
-    current.tool = TOOLS[e.target.getAttribute('tool')];
+    let attr = e.getAttribute('tool');
+    console.log(attr);
+    current.tool = TOOLS[attr];
+    console.log(current.tool);
+    for (let t of document.querySelectorAll('.tool')) {
+        t.style.opacity = "0.6";
+    }
+    e.style.opacity = "1";
 }
 
 function changeBoxSize(){
@@ -156,7 +216,6 @@ function onMouseDown(e) {
 
 function onMouseUp(e) {
     if (!drawing || drawzone.hasAttribute('disabled')) return;
-    onMouseMove(e);
     drawing = false;
 }
 
@@ -166,14 +225,11 @@ function onMouseMove(e) {
     const x1 = e.offsetX || e.touches[0].clientX - drawzone.offsetLeft, 
     y1 = e.offsetY || e.touches[0].clientY - drawzone.offsetTop + window.pageYOffset;
 
-    drawLine(
+    useTool(
         current.x, 
         current.y, 
         x1, 
-        y1, 
-        current.color, 
-        current.size, 
-        current.tool
+        y1
     );
     current.x = x1;
     current.y = y1;
@@ -189,3 +245,19 @@ function onMouseWheel(e) {
         current.size -= 1;
     }
 }
+
+function colorPixel(pixel, newColor){
+    current.layer.data[pixel] = newColor[0];
+    current.layer.data[pixel + 1] = newColor[1];
+    current.layer.data[pixel + 2] = newColor[2];
+    current.layer.data[pixel + 3] = 255;
+}
+
+function matchColor(pixel, startColor){
+    var r = current.layer.data[pixel];
+    var g = current.layer.data[pixel + 1];
+    var b = current.layer.data[pixel + 2];
+    return (r == startColor[0] && g == startColor[1] && b == startColor[2]);
+}
+
+function hexToRGB(hex) {return [(bigint = parseInt(hex, 16)) >> 16 & 255, bigint >> 8 & 255, bigint & 255];}

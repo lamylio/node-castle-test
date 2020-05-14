@@ -22,6 +22,9 @@ socket.on('pick_word', (message) => {
         socket.emit('word_picked', { word });
         drawzone.removeAttribute('disabled');
         modal_pick.close();
+        setTimeout(() => {
+            socket.emit('time_out');
+        }, 1000 * parseInt(document.querySelector(`.setting input[name='duration']`).value) + 1000);
     }
 })
 
@@ -40,7 +43,6 @@ socket.on('hint_word', (message) => {
     let hint = document.querySelector('.hint');
     hint.textContent = '';
     for (let ch of message.word) {
-        console.log(ch);
         createCustomElement('li', hint, { class: ["letter"], content: ch });
     }
 });

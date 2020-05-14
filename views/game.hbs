@@ -80,22 +80,28 @@
 
     <div class="palette card-panel" invisible>
         <div class="card">
-            <input type="range" id="input_pen_size" min="1" max="20" step="1" value="3">
+            <input type="range" id="input_pen_size" min="1" max="6" step="1" value="2">
             <label for="input_pen_size">Taille du pinceau</label>
         </div>
         <div class="colorzone card">
             <ul class="colors">
+                <!-- Colors are added dynamically -->
                 <li class="color" color="#FFFFFF" style="background: white"></li>
                 <li class="color" color="#808080" style="background: grey"></li>
-                <li class="color" color="#000000" style="background: black"></li>
+                <li class="color" color="#000000" style="background: #111000"></li>
             </ul>
         </div>
-        <div class="tools card">
-            <ul>
-                <li class="tool" tool="PEN"><i class="skicon-brush"></i></li> {{!-- create edit --}}
-                <li class="tool" tool="ERASER" style="opacity: 0.5"><i class="skicon-eraser"></i></li>
-                <li class="tool" tool="BUCKET" style="opacity: 0.5"><i class="skicon-bucket"></i></li> {{!-- format_paint --}}
-                {{!-- delete_forever --}}
+        <div class="toolzone card">
+            <ul class="tools">
+                <li class="tool" tool="PEN" onclick="onToolUpdate(this)">
+                    <i class="skicon-brush"></i>
+                </li>
+                <li class="tool" tool="BUCKET" onclick="onToolUpdate(this)" style="opacity: 0.6">
+                    <i class="skicon-bucket"></i>
+                </li>
+                <li class="tool" onclick="resetDrawbox()" style="opacity: 0.6">
+                    <i class="skicon-trash"></i>
+                </li>
             </ul>
         </div>
     </div>

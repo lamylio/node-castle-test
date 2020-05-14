@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'skicon';
-  src: url('../font/skicon.eot?16666409');
-  src: url('../font/skicon.eot?16666409#iefix') format('embedded-opentype'),
-       url('../font/skicon.woff2?16666409') format('woff2'),
-       url('../font/skicon.woff?16666409') format('woff'),
-       url('../font/skicon.ttf?16666409') format('truetype'),
-       url('../font/skicon.svg?16666409#skicon') format('svg');
+  src: url('../font/skicon.eot?75514746');
+  src: url('../font/skicon.eot?75514746#iefix') format('embedded-opentype'),
+       url('../font/skicon.woff2?75514746') format('woff2'),
+       url('../font/skicon.woff?75514746') format('woff'),
+       url('../font/skicon.ttf?75514746') format('truetype'),
+       url('../font/skicon.svg?75514746#skicon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -73,5 +73,6 @@
 .skicon-plus-squared:before { content: '\f0fe'; } /* '' */
 .skicon-eraser:before { content: '\f12d'; } /* '' */
 .skicon-minus-squared:before { content: '\f146'; } /* '' */
+.skicon-trash:before { content: '\f1f8'; } /* '' */
 .skicon-brush:before { content: '\f1fc'; } /* '' */
 .skicon-user-circle:before { content: '\f2bd'; } /* '' */

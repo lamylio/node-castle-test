@@ -252,12 +252,16 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
     socket.on('time_out', () => {
         if (!socket.uuid || !socket.channel || !socket.username) return;
-
+        console.log("Time out asked by %s", socket.username);
         let channel = channels.find(channel => channel.id == socket.channel);
         if (channel) {
             if (channel.game.started) {
+                console.log("Time out started checked");
                 if (new Date() >= channel.game.expires) {
                     nextDrawer(socket, channel);
+                }else{
+                    console.log("Time out date uncheked");
+                    console.log("%s < %s", new Date(), channel.game.expires);
                 }
             }
         } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });

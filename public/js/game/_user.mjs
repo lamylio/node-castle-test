@@ -34,7 +34,7 @@ socket.on('list_users', (message) => {
     let usb = document.querySelector('.userbox');
     usb.textContent = '';
     for(user of message.users){
-        let li = createCustomElement('li', usb, {class: ['user', 'card'], content: `${user.username} : ${user.score} points`, username: user.username});
+        let li = createCustomElement('li', usb, {class: ['user', 'card'], content: `${user.username} : ${user.score} point ${user.score > 0 ? 's' : ''}`, username: user.username});
         if (user.drawer) li.classList.add('blue-text', 'text-darken-3');
     }
 })

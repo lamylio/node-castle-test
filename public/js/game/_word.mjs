@@ -49,17 +49,21 @@ socket.on('hint_word', (message) => {
         createCustomElement('li', hint, { class: ["letter"], content: ch });
     }
 
-    let timer = document.querySelector('header .timer');
-    let duration = parseInt(message.expires);
-    timer.innerText = duration--;
-    timer_interval = setInterval(() => {
-        if (timer.innerText == 0) {
-            clearInterval(timer_interval);
-            socket.emit('time_out');
-        } else {
-            timer.innerText = duration--;
-        }
-    }, 1000);
+
+    if(message.expires){
+        let timer = document.querySelector('header .timer');
+        let duration = parseInt(message.expires);
+        timer.innerText = duration--;
+        timer_interval = setInterval(() => {
+            if(timer.innerText == 8) playAudio(AUDIO.TIME_OUT_SOON);
+            if (timer.innerText == 0) {
+                clearInterval(timer_interval);
+                socket.emit('time_out');
+            } else {
+                timer.innerText = duration--;
+            }
+        }, 1000);
+    }
 });
 
 socket.on('word_found', (message) => {

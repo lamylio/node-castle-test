@@ -37,7 +37,7 @@ body::before{
 
     .grid-game.started{
         grid-template-areas:  "drawzone chatzone" "palette userzone";
-        grid-template-columns: 1fr;
+        grid-template-columns: 600px 1fr;
         grid-template-rows: 600px 1fr;
         margin: 1em 0;
     }
@@ -187,6 +187,7 @@ body::before{
     grid-area: drawzone;
     max-height: 600px;
     max-width: 100%;
+    cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAABhklEQVRYR+2WoU7DUBSGT8E0bEGAuUCuAIVoUrUsPAGiYq7bAzSpwVJ5l105LGp9AZirqOANaGoqJlAgGuCaIQhdZmCkyyWBMMjSs6TNcqt72i/ff+7falDxS6s4HyhAbELKoDKINYCdVzuoDGINYOfVDlbJYBsAjiXQHQBcY+Hy+VVE3AGAC0LIhFI6zh+apumOEKIGAOcAcIUBxQJ2dF0/8zzvyLKs7SRJapqmzUzTzMIwfO33+w/T6fQSA4kFTBljG4Zh7Nu2/UPUcDiE0Wj0zDl/BwBa1CIGsE0I6QVBcNBsNuuLAKIoylqt1qMQghXdSQxgt9FonDqOc+K67kJBg8Fg5vv+bRzHNwDQK2JxrQHziLmMOD+xv64oit5kxN0yIp43CmNs0zCMvT8OyRPn/KOsQ5IDftXMoayZuqyZiayZ+7JrZg4pizqjlL7Iot4VQmxVoai/711lP3VF2mPpGUzNLP0SzI0KEGNvVb9bWIZ/51XEWL3KoDKINYCdVzu49gY/AYf/iCmlFmV4AAAAAElFTkSuQmCC") 20 20, default;
 }
 
 .drawbox{

@@ -1,5 +1,5 @@
 const { sanitize, manulex } = require('../../app.js');
-const { nextDrawer, getTimers, isHost, getUsersByScore } = require('../socket.js');
+const { nextDrawer, isHost, getUsersByScore } = require('../socket.js');
 const uuid = require('uuid');
 
 /* ----- CHANNELS EVENTS ----- */
@@ -100,7 +100,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         socket.emit('drawer_changed', { username: channel.game.drawer.username })
                         socket.emit('retrieve_drawing', { url: channel.game.drawURL });
                         if(channel.game.words.picked != "")
-                            socket.emit('hint_word', { word: channel.game.words.hint, expires: Math.floor((channel.game.expires-new Date())/1000)-1 });
+                            socket.emit('hint_word', { word: channel.game.words.hint, expires: Math.floor((channel.game.expires-new Date())/1000) });
                     }
                     socket.emit('settings_changed', {settings: channel.settings});
 
@@ -141,9 +141,9 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             
             if(channel.game.started){
                 channel.game.words.found = channel.game.words.found.filter(user => user != socket.uuid);
-                console.log(channel.game.words.found);
                 if(channel.users.length == 1){
                     /* Reset the game propreties */
+                    socket.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
                     socket.to(channel.id).emit('game_end', { rank: [{username: channel.users[0].username, score: channel.users[0].score}]});
                     channel.game = {
                         started: false,
@@ -163,8 +163,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     return;
                 }
 
-                if(channel.game.drawer.uuid == socket.uuid || channel.users.length >= channel.game.words.found.length){
-                    clearTimeout(getTimers[channel.game.timer]);
+                if(channel.game.drawer.uuid == socket.uuid || channel.users.length == channel.game.words.found.length-1){
                     nextDrawer(socket, channel);
                 }
             }
@@ -254,6 +253,29 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
                     let drawer = socket.uuid;
                     let round = channel.game.round;
+                    
+                    let hint_interval, count = 0;
+                    setTimeout(() => {
+                        hint_interval = setInterval(() => {
+                            if (new Date() >= channel.game.expires-2000 || count >= Math.floor(word.length/2) || round != channel.game.round 
+                            || drawer != channel.game.drawer.uuid || channel.game.words.hint == channel.game.words.picked 
+                            || channel.game.words.picked == channel.game.words.hint) {
+                                clearInterval(hint_interval);
+                            }
+
+                            let rd = Math.floor(word.length/2);
+                            /* Dont pick a letter which has been already picked */  
+                            while(channel.game.words.hint.charAt(rd) == word.charAt(rd)){
+                                rd = Math.floor(Math.random() * word.length); 
+                            }
+                            
+                            channel.game.words.hint = channel.game.words.hint.substr(0, rd) + word.charAt(rd) + channel.game.words.hint.substr(rd+1);
+                            socket.to(channel.id).emit('hint_word', { word: channel.game.words.hint });
+                            
+                            count++;
+                        }, 1000 * parseInt(channel.settings.duration) / 2 / 3);
+                    }, 1000 * (parseInt(channel.settings.duration) / 2 - parseInt(channel.settings.duration) / 2 / 3));
+                    
                     setTimeout(() => {
                         if (new Date() < channel.game.expires && drawer == channel.game.drawer.uuid && round == channel.game.round) nextDrawer(socket, channel);
                     }, (1000 * (1 + parseInt(channel.settings.duration))));

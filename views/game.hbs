@@ -112,7 +112,7 @@
                 <!-- Colors are added dynamically -->
                 <li class="color" color="#FFFFFF" style="background: white"></li>
                 <li class="color" color="#808080" style="background: grey"></li>
-                <li class="color" color="#000000" style="background: #111000"></li>
+                <li class="color" color="#111000" style="background: #111000; outline: 1px dotted black"></li>
             </ul>
         </div>
         <div class="toolzone card">
@@ -120,14 +120,13 @@
                 <li class="tool" tool="PEN" onclick="onToolUpdate(this)">
                     <i class="skicon-brush"></i>
                 </li>
-                <li class="tool" tool="BUCKET" onclick="onToolUpdate(this)" style="opacity: 0.6" disabled>
+                <li class="tool" tool="BUCKET" onclick="onToolUpdate(this)" style="opacity: 0.6">
                     <i class="skicon-bucket"></i>
                 </li>
                 <li class="tool" onclick="resetDrawbox()" style="opacity: 0.6">
                     <i class="skicon-trash"></i>
                 </li>
             </ul>
-            <small>Attention : risque de crash avec le sceau.</small>
         </div>
     </div>
 

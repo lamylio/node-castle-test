@@ -46,7 +46,7 @@ module.exports.ERROR_MESSAGES = {
     }
 }
 
-let channels = [], timers = [];
+let channels = [];
 
 io.sockets.on('connection', (socket) => {
 
@@ -75,7 +75,6 @@ io.sockets.on('connection', (socket) => {
 /* ---- */
 
 function getChannels() {return channels;}
-function getTimers(){ return timers;}
 
 /* So basically the user can only be host of 1 channel at a time 
 (coz I use '.find' which returns the first occurence) */
@@ -96,6 +95,7 @@ function isHost (socket) {
 
 function nextDrawer(socket, channel) {
     if(channel.game.words.picked != ""){
+        channel.game.words.hint = channel.game.words.picked;
         socket.emit('reveal_word', { word: channel.game.words.picked });
         socket.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
     }
@@ -165,4 +165,4 @@ function getUsersByScore(channel){
     return rank;
 }
 
-module.exports = { getChannels, getTimers, nextDrawer, getUsersByScore, isHost }
+module.exports = { getChannels, nextDrawer, getUsersByScore, isHost }

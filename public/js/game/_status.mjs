@@ -17,7 +17,13 @@ socket.on('game_start', () => {
 
 socket.on('game_end', (message) => {
     let rank = message.rank;
-    createChatMessage({ console: true, content: `<b class="yellow-text text-darken-3"><i class='skicon-award'></i> ${rank[0].username} a gagné avec ${rank[0].score} points !</b>` });
+
+    content = `<b class="yellow-text text-darken-3"><i class='skicon-award'></i> ${rank[0].username} a gagné avec ${rank[0].score} ${rank[0].score > 0 ? "points" : "point"} !</b>`;
+    if(rank.length > 1){
+        if (rank[0].score == rank[1].score) content = `<b class="yellow-text text-darken-3"><i class='skicon-flag'></i> Nous avons une égalité avec ${rank[0].score} ${rank[0].score > 0 ? "points" : "point"} !</b>`; 
+    }
+    
+    createChatMessage({ console: true, content });
     let g = document.querySelector('.grid-game');
     for (let ch of g.children) {
         if (ch.classList.contains("chatzone")) continue;
@@ -35,9 +41,9 @@ socket.on('game_end', (message) => {
 
     let i = 1;
     for(u of rank){
-        let classes = ["user", "card"], content = `${u.username} avec ${u.score} points`;
+        let classes = ["user", "card"], content = `${u.username} avec ${u.score} ${u.score > 0 ? 'points' : 'point'}`;
         if(i <= 3) classes.push('yellow-text', 'text-darken-'+(4-i));
-        if(i == 1) content = "<i class='skicon-award'></i>" + content;
+        if(i == 1 || u.score == rank[0].score) content = "<i class='skicon-award'></i>" + content;
         createCustomElement('li', rankbox, {class: classes, content});
         i++;
     }
@@ -48,7 +54,7 @@ socket.on('game_end', (message) => {
     setTimeout(() => {
         modal_rank.close();
         playAudio(AUDIO.BACKGROUND, true, 0.1);
-    }, 5000);
+    }, 8000);
 });
 
 socket.on('next_round', (message) => {

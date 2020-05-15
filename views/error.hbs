@@ -3,5 +3,11 @@
     <h2>{{ errorMessage }}</h2>
 
     <p class="flow-text">(Je m'occuperai de faire une belle page d'erreur avec une redirection et une barre qui défile plus tard)</p>
-    <a href="/"><h5>Retourner à l'accueil</h5></a>
+    <a class="waves-effect waves-light btn-large grey darken-3" href="/"><h5>Accueil</h5></a>
 </center>
+
+<script>
+    setTimeout(() => {
+        window.location = "/";
+    }, 2500);
+</script>

@@ -51,12 +51,13 @@ socket.on('hint_word', (message) => {
 
 
     if(message.expires){
+        clearInterval(timer_interval);
         let timer = document.querySelector('header .timer');
         let duration = parseInt(message.expires);
         timer.innerText = duration--;
         timer_interval = setInterval(() => {
             if(timer.innerText == 8) playAudio(AUDIO.TIME_OUT_SOON);
-            if (timer.innerText == 0) {
+            if (timer.innerText <= 0) {
                 clearInterval(timer_interval);
                 socket.emit('time_out');
             } else {

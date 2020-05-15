@@ -22,6 +22,24 @@ app.post('/sanitize', (req, res) => {
     res.end(sanitize(req.body.content, { allowedTags: [] })) 
 })
 
+/* --- */
+
+app.get('/channels', (req, res) => {
+    res.jsonp(getChannels());
+})
+
+app.get('/channel/:id?', (req, res, next) => {
+    let id = sanitize(req.params.id, { allowedTags: [] });
+    if (id.length == 36) {
+        let channel = getChannels().find(channel => channel.id == id);
+        if (channel) {
+            res.jsonp(channel);
+            return;
+        }
+    }
+    next();
+});
+
 /* ----- */
 
 app.get('/game/:id?', (req, res, next) => {

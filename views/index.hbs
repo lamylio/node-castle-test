@@ -1,10 +1,10 @@
 <div class="container bordered ">
 
-    <div class="section margined">
+    <div class="section">
 
         <div class="section">
-            <h1>Skribb.lio</h1>
-            <h5>La même chose mais en moins bien</h5>
+            <h1 id="title_name">Skribbl.io ?</h1>
+            <h5 id="title_desc"></h5>
             <small>({{manulex}} mots)</small>
         </div>
 
@@ -31,22 +31,45 @@
     </div>
     <hr>
     <div class="section">
-        <h5>Comment jouer ?</h5>
+        <h5>Info pour les noobs</h5>
 
         <p>
-            Le principe du jeu est - en tant que dessinateur - de faire deviner aux autres joueurs un mot choisi au hasard en le dessinant dans un temps imparti.<br>
-            Les réponses doivent être données dans le chat. Des points sont attribués à celui qui trouve et au dessinateur en fonction du temps restant.
+            Le principe du jeu est de faire deviner aux autres joueurs un mot choisi au hasard en le dessinant dans un temps imparti.<br>
+            Des points sont ajoutés à ceux qui trouvent (et au dessinateur) en fonction du temps restant.<br>
+            Les réponses doivent être données dans le chat.
         </p>
 
         <p>
-            Plusieurs couleurs sont disponibles dans la palette ainsi qu'un sceau.<br>
-            La taille du pinceau est changeable via une barre ou la roulette de la souris.
+            Plusieurs couleurs sont disponibles dans la palette ainsi qu'un sceau et une poubelle.<br>
+            La taille du pinceau est changeable via la roulette de la souris ou une barre.
         </p>
 
+        <p>
+            Si par malheur votre dessin venait à être bloqué sur celui du tour précédent, vous pouvez taper <code>/clean</code> dans le chat.
+        </p>
 
         <p>
-            Si par malheur votre dessin venait à être bloqué sur celui du tour précédent, vous pouvez taper <code>/clean</code>
-            dans le chat.
+            <small>Développé par Lioche</small>
         </p>
     </div>
 </div>
+
+<script>
+let title_name = document.querySelector('#title_name'), title_desc = document.querySelector('#title_desc');
+let to_write = {title: ".lio", desc: "La même chose mais par Lioche"}, rpos = -5, ti = 150;
+
+function type(){
+    if(rpos >= to_write.desc.length+4) return;
+    if(rpos < 0){
+        title_name.textContent = title_name.innerText.slice(0, -1);
+    }else if(rpos > 3){
+        ti = 45;
+        title_desc.textContent += to_write.desc.charAt(rpos-4);
+    }else{
+        title_name.textContent += to_write.title.charAt(rpos);
+    }
+    rpos++;
+    setTimeout(type, ti);
+}
+setTimeout(type, 1500);
+</script>

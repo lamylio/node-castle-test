@@ -91,7 +91,6 @@ function drawCursor(){
     cursor_context.closePath();
 
     let data = cursor_canva.toDataURL();
-    console.log(data);
     drawzone.style.cursor = `url(${data}) 25 25, default`;
 }
 
@@ -154,7 +153,7 @@ function onColorUpdate(e) {
     current.colorElement.style.outline = "";
     current.colorElement = e.srcElement;
     current.color = e.srcElement.getAttribute('color');
-    current.colorElement.style.outline = "1px dotted black";
+    current.colorElement.style.outline = "#37474f solid 2px";
     drawCursor();
 }
 
@@ -220,9 +219,10 @@ function onMouseWheel(e) {
     let factor = 4;
     if(current.size >= 13) factor = 6;
     if (wUp) {
+        if(current.size >= 46) return;
         current.size += factor;
     } else {
-        if (current.size == 4) return;
+        if (current.size <= 4) return;
         current.size -= factor;
     }
     drawCursor();

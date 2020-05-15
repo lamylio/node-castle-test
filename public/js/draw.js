@@ -44,7 +44,7 @@ drawzone.addEventListener('touchend', onMouseUp, false);
 drawzone.addEventListener('touchcancel', onMouseUp, false);
 drawzone.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 
-drawzone.onwheel = throttle(onMouseWheel, 250);
+drawzone.addEventListener("wheel", onMouseWheel, {passive: false});
 window.onresize = changeBoxSize;
 
 changeBoxSize();
@@ -218,17 +218,18 @@ function onMouseMove(e) {
 /* Disabled */
 function onMouseWheel(e) {
     e.preventDefault();
+    e.stopPropagation();
     wUp = e.wheelDelta > 0 ? true : false;
-    let factor = 4;
-    if(current.size >= 13) factor = 6;
+    let factor = 2;
     if (wUp) {
-        if(current.size >= 46) return;
+        if(current.size >= 46) return false;
         current.size += factor;
     } else {
-        if (current.size <= 4) return;
+        if (current.size <= 4) return false;
         current.size -= factor;
     }
     drawCursor();
+    return false;
 }
 
 async function colorPixel(pixel, newColor){

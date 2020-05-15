@@ -255,12 +255,14 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     let round = channel.game.round;
                     
                     let hint_interval, count = 0;
+                    let new_hint;
                     setTimeout(() => {
                         hint_interval = setInterval(() => {
-                            if (new Date() >= channel.game.expires-2000 || count >= Math.floor(word.length/2) || round != channel.game.round 
-                            || drawer != channel.game.drawer.uuid || channel.game.words.hint == channel.game.words.picked 
+                            if (new Date() >= channel.game.expires-3000 || count >= Math.floor(word.length/2) || round != channel.game.round 
+                                || drawer != channel.game.drawer.uuid || new_hint == word 
                             || channel.game.words.picked == channel.game.words.hint) {
                                 clearInterval(hint_interval);
+                                return;
                             }
 
                             let rd = Math.floor(word.length/2);

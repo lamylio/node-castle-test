@@ -48,8 +48,9 @@ socket.on('hint_word', (message) => {
     for (let ch of message.word) {
         createCustomElement('li', hint, { class: ["letter"], content: ch });
     }
-    let duration = parseInt(document.querySelector(`.setting input[name='duration']`).value);
+
     let timer = document.querySelector('header .timer');
+    let duration = parseInt(message.expires);
     timer.innerText = duration--;
     timer_interval = setInterval(() => {
         if (timer.innerText == 0) {

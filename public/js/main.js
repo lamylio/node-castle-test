@@ -9,6 +9,7 @@ const AUDIO = {
     USER_LEFT: {path: ""},
     GAME_START: {path: ""},
     GAME_END: {path: "congrats.flac"},
+    TIME_OUT_SOON: {path: "time_out_soon.wav"},
     NEXT_ROUND: {path: "next_round.mp3"},
     WORD_FOUND: {path: "correct_answer.mp3"},
     PICK_WORD: {path: "pick_word.wav"},

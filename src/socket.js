@@ -153,11 +153,6 @@ function nextDrawer(socket, channel) {
 
     if(socket.uuid == next_drawer.uuid) socket.emit('pick_word', { words: channel.game.words.proposed });
     else socket.broadcast.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
-
-    let d = new Date();
-    /* 5 seconds more bc lag */
-    d = new Date(d.getTime() + (1000 * (5 + parseInt(channel.settings.duration))));
-    channel.game.expires = d;
 }
 
 

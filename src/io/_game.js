@@ -100,7 +100,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         socket.emit('drawer_changed', { username: channel.game.drawer.username })
                         socket.emit('retrieve_drawing', { url: channel.game.drawURL });
                         if(channel.game.words.picked != "")
-                        socket.emit('hint_word', { word: channel.game.words.hint });
+                            socket.emit('hint_word', { word: channel.game.words.hint, expires: Math.floor((channel.game.expires-new Date())/1000)-1 });
                     }
                     socket.emit('settings_changed', {settings: channel.settings});
 
@@ -140,6 +140,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             }
             
             if(channel.game.started){
+                channel.game.words.found = channel.game.words.found.filter(user => user != socket.uuid);
+                console.log(channel.game.words.found);
                 if(channel.users.length == 1){
                     /* Reset the game propreties */
                     socket.to(channel.id).emit('game_end', { rank: [{username: channel.users[0].username, score: channel.users[0].score}]});
@@ -161,7 +163,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     return;
                 }
 
-                if(channel.game.drawer.uuid == socket.uuid){
+                if(channel.game.drawer.uuid == socket.uuid || channel.users.length >= channel.game.words.found.length){
                     clearTimeout(getTimers[channel.game.timer]);
                     nextDrawer(socket, channel);
                 }
@@ -241,15 +243,20 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     }
                     channel.game.words.picked = word;
                     channel.game.words.hint = hidden_word;
+
+                    let d = new Date();
+                    /* 1 second more bc lag */
+                    d = new Date(d.getTime() + (1000 * (1 + parseInt(channel.settings.duration))));
+                    channel.game.expires = d;
                     
-                    socket.emit('hint_word', {word});
-                    socket.to(channel.id).emit('hint_word', {word: hidden_word});
+                    socket.emit('hint_word', { word, expires: parseInt(channel.settings.duration)});
+                    socket.to(channel.id).emit('hint_word', { word: hidden_word, expires: parseInt(channel.settings.duration)});
 
                     let drawer = socket.uuid;
                     let round = channel.game.round;
                     setTimeout(() => {
                         if (new Date() < channel.game.expires && drawer == channel.game.drawer.uuid && round == channel.game.round) nextDrawer(socket, channel);
-                    }, (1000 * (2 + parseInt(channel.settings.duration))));
+                    }, (1000 * (1 + parseInt(channel.settings.duration))));
 
                 } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_drawer });
             

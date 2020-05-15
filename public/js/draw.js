@@ -245,14 +245,14 @@ function onMouseWheel(e) {
     }
 }
 
-function colorPixel(pixel, newColor){
+async function colorPixel(pixel, newColor){
     current.layer.data[pixel] = newColor[0];
     current.layer.data[pixel + 1] = newColor[1];
     current.layer.data[pixel + 2] = newColor[2];
     current.layer.data[pixel + 3] = 255;
 }
 
-function matchColor(pixel, startColor){
+async function matchColor(pixel, startColor){
     var r = current.layer.data[pixel];
     var g = current.layer.data[pixel + 1];
     var b = current.layer.data[pixel + 2];

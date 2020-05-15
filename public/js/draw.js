@@ -30,6 +30,8 @@ let current = {
     tool: TOOLS.PEN
 };
 
+let mouse = {x: 0, y:0}
+
 /* Register events */
 
 drawzone.addEventListener('mousedown', onMouseDown, false);
@@ -42,7 +44,7 @@ drawzone.addEventListener('touchend', onMouseUp, false);
 drawzone.addEventListener('touchcancel', onMouseUp, false);
 drawzone.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 
-window.onwheel = throttle(onMouseWheel, 250);
+drawzone.onwheel = throttle(onMouseWheel, 250);
 window.onresize = changeBoxSize;
 
 changeBoxSize();

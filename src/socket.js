@@ -93,7 +93,12 @@ function isHost (socket) {
     return false;
 }
 
+let block = false;
 function nextDrawer(socket, channel) {
+    if(block) return;
+    block = true;
+    channel.game.words.started = false;
+
     if(channel.game.words.picked != ""){
         channel.game.words.hint = channel.game.words.picked;
         socket.emit('reveal_word', { word: channel.game.words.picked });
@@ -106,7 +111,7 @@ function nextDrawer(socket, channel) {
     channel.game.words.proposed = [];
     channel.game.words.found = [];
     channel.game.timer = 0;
-
+    
     let next_drawer = channel.users.find(
         user => user.hasDrawn == false 
         && user.uuid != channel.game.drawer.uuid
@@ -136,23 +141,27 @@ function nextDrawer(socket, channel) {
     channel.game.words.proposed = [
         manulex[Math.floor(Math.random() * manulex.length)],
         manulex[Math.floor(Math.random() * manulex.length)],
+        manulex[Math.floor(Math.random() * manulex.length)],
         manulex[Math.floor(Math.random() * manulex.length)]
     ];
 
-    next_drawer.hasDrawn = true;
+    channel.game.words.proposed.sort((a, b) => a.length - b.length);
     channel.game.drawer = next_drawer;
 
+    
     socket.emit('drawer_changed', { username: next_drawer.username });
     socket.to(channel.id).emit('drawer_changed', { username: next_drawer.username });
-
+    
     socket.emit('list_users', { users: getUsersByScore(channel) });
     socket.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
-
+    
     socket.emit('clean_drawing');
     socket.to(channel.id).emit('clean_drawing');
-
+    
     if(socket.uuid == next_drawer.uuid) socket.emit('pick_word', { words: channel.game.words.proposed });
     else socket.broadcast.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
+        
+    block = false;
 }
 
 

@@ -1,4 +1,4 @@
-const { sanitize, manulex } = require('../../app.js');
+const { sanitize, manulex, throttle } = require('../../app.js');
 const { nextDrawer, isHost, getUsersByScore } = require('../socket.js');
 const uuid = require('uuid');
 
@@ -33,6 +33,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     drawer: "",
                     drawURL: "",
                     words: {
+                        started: false,
                         hint: "",
                         picked: "",
                         proposed: [],
@@ -151,6 +152,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         drawer: "",
                         drawURL: "",
                         words: {
+                            started: false,
                             hint: "",
                             picked: "",
                             proposed: [],
@@ -243,6 +245,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     }
                     channel.game.words.picked = word;
                     channel.game.words.hint = hidden_word;
+                    channel.game.words.started = true;
+                    channel.game.drawer.hasDrawn = true;
 
                     let d = new Date();
                     /* 1 second more bc lag */
@@ -296,8 +300,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
         let channel = channels.find(channel => channel.id == socket.channel);
         if (channel) {
             if (channel.game.started) {
-                if (new Date() >= channel.game.expires) {
-                    nextDrawer(socket, channel);
+                if (new Date() >= channel.game.expires && channel.game.words.started && channel.game.drawer.hasDrawn) {
+                    throttle(nextDrawer(socket, channel),5000);
                 }
             }
         } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });

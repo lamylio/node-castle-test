@@ -11,7 +11,7 @@ socket.on('user_left', (message) => {
 /* Game-users related listeners */
 
 socket.on('host_changed', (message) => {
-    createChatMessage({ console: true, content: `<b class="red-text text-darken-3><i class='skicon-star'></i> ${message.username} devient l'hôte</b>` });
+    createChatMessage({ console: true, content: `<b class="red-text text-darken-3"><i class='skicon-star'></i> ${message.username} devient l'hôte</b>` });
     if (localStorage.username != message.username) return;
     for (let s of document.querySelectorAll('.setting')) {
         for (let e of s.children) {

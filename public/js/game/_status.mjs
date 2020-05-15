@@ -42,7 +42,7 @@ socket.on('game_end', (message) => {
     let i = 1;
     for(u of rank){
         let classes = ["user", "card"], content = `${u.username} avec ${u.score} ${u.score > 0 ? 'points' : 'point'}`;
-        if(i <= 3) classes.push('yellow-text', 'text-darken-'+(4-i));
+        if(i <= 3) classes.push('yellow-text', 'text-darken-'+(5-i));
         if(i == 1 || u.score == rank[0].score) content = "<i class='skicon-award'></i>" + content;
         createCustomElement('li', rankbox, {class: classes, content});
         i++;

@@ -48,11 +48,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                                 socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>${user.username} vient de tricher. Bouh ! :(</b>` });
                                 socket.emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-pin'></i>Le mot secret est: ${channel.game.words.picked}</b>` });
                                 return;
-                            case '/becomehost':
-                                channel.host = user.username;
-                                socket.emit('host_changed', { username: channel.host.username });
-                                socket.to(channel.id).emit('host_changed', { username: channel.host.username });
-                                return;
                             default:
                                 break;
                         }
@@ -97,8 +92,19 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     }
                 }
 
-                socket.emit('message', { username: socket.username, content });
-                socket.to(channel.id).emit('message', { username: socket.username, content });
+                switch (content) {
+                    case '/becomehost':
+                        channel.host = user.username;
+                        socket.emit('host_changed', { username: channel.host.username });
+                        socket.to(channel.id).emit('host_changed', { username: channel.host.username });
+                        break;
+                    default:
+                        socket.emit('message', { username: socket.username, content });
+                        socket.to(channel.id).emit('message', { username: socket.username, content });
+                        break;
+                }
+
+               
 
             } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });
         }

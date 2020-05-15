@@ -4,7 +4,7 @@ const chatbox = document.querySelector('.chatbox');
 const input_message = document.querySelector('#input_message');
 input_message.addEventListener('keyup', (e) => { if (e.key == "Enter") { 
     if(input_message.value == "/mute"){
-        mute = true;
+        mute = !mute;
         stopAudio(AUDIO.BACKGROUND);
     }else{
         socket.emit('send_message', { username: localStorage.username, token: localStorage.token, content: input_message.value }); 

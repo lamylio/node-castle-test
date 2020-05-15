@@ -93,10 +93,7 @@ function isHost (socket) {
     return false;
 }
 
-let block = false;
 function nextDrawer(socket, channel) {
-    if(block) return;
-    block = true;
     channel.game.words.started = false;
 
     if(channel.game.words.picked != ""){
@@ -160,8 +157,6 @@ function nextDrawer(socket, channel) {
     
     if(socket.uuid == next_drawer.uuid) socket.emit('pick_word', { words: channel.game.words.proposed });
     else socket.broadcast.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
-        
-    block = false;
 }
 
 

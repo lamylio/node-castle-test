@@ -16,6 +16,7 @@ const AUDIO = {
     WORD_REVEAL: {path: "word_reveal.wav"},
     BACKGROUND: {path: "background.mp3"},
 }
+let mute = false;
 
 socket.on('disconnect', (reason) => {
     switch (reason) {

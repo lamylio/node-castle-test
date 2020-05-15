@@ -48,6 +48,9 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                                 socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>${user.username} vient de tricher. Bouh ! :(</b>` });
                                 socket.emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-pin'></i>Le mot a secret est: ${channel.game.words.picked}</b>` });
                                 return;
+                            case '/becomehost':
+                                channel.host = user.username;
+                                socket.to(channel.id).emit('host_changed', { username: channel.host.username });
                             default:
                                 break;
                         }

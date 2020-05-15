@@ -11,8 +11,7 @@ socket.on('user_left', (message) => {
 /* Game-users related listeners */
 
 socket.on('host_changed', (message) => {
-    /* Pas la peine d'essayer de gruger, il y a des vérifications côté serveur ;) */
-    //createChatMessage({ console: true, content: `<span style='color: darkorange;font-weight: bold'><i class='skicon-star'></i> ${message.username} devient l'hôte</span>` });
+    createChatMessage({ console: true, content: `<span style='color: darkorange;font-weight: bold'><i class='skicon-star'></i> ${message.username} devient l'hôte</span>` });
     if (localStorage.username != message.username) return;
     for (let s of document.querySelectorAll('.setting')) {
         for (let e of s.children) {

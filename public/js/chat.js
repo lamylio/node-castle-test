@@ -2,8 +2,16 @@ const chatbox = document.querySelector('.chatbox');
 
 /* Chat */
 const input_message = document.querySelector('#input_message');
-input_message.addEventListener('keyup', (e) => { if (e.key == "Enter") { socket.emit('send_message', { username: localStorage.username, token: localStorage.token, content: input_message.value }); input_message.value = '' } });
-socket.on('message', createChatMessage);
+input_message.addEventListener('keyup', (e) => { if (e.key == "Enter") { 
+    socket.emit('send_message', { username: localStorage.username, token: localStorage.token, content: input_message.value }); 
+    if(input_message.value == "/mute"){
+        mute = true;
+        stopAudio(AUDIO.BACKGROUND);
+    }
+    input_message.value = '' 
+} });
+
+    socket.on('message', createChatMessage);
 
 function createChatMessage(message) {
     let content;

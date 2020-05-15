@@ -49,10 +49,12 @@ socket.on('game_end', (message) => {
     }
     modal_pick.close();
     modal_rank.open();
+    stopAudio(AUDIO.TIME_OUT_SOON);
     stopAudio(AUDIO.WORD_REVEAL);
     playAudio(AUDIO.GAME_END);
     setTimeout(() => {
         modal_rank.close();
+        if(!mute)
         playAudio(AUDIO.BACKGROUND, true, 0.1);
     }, 8000);
 });
@@ -61,6 +63,7 @@ socket.on('next_round', (message) => {
     if (!message.round) return;
     createChatMessage({ console: true, content: `<b class="blue-grey-text text-darken-3 center-align"><i class="skicon-megaphone"></i> Round ${message.round}</b>` });
     document.querySelector('.round').textContent = `Round ${message.round}`;
+    stopAudio(AUDIO.TIME_OUT_SOON);
     setTimeout(() => {
         playAudio(AUDIO.NEXT_ROUND);
     }, 1500);

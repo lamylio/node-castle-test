@@ -217,6 +217,7 @@ function onMouseMove(e) {
 
 /* Disabled */
 function onMouseWheel(e) {
+    e.preventDefault();
     wUp = e.wheelDelta > 0 ? true : false;
     let factor = 4;
     if(current.size >= 13) factor = 6;

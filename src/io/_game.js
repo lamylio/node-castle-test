@@ -259,7 +259,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     let new_hint;
                     setTimeout(() => {
                         hint_interval = setInterval(() => {
-                            if (new Date() >= channel.game.expires-5000 || count >= Math.floor(word.length/2) || round != channel.game.round 
+                            if (new Date() >= channel.game.expires || count >= Math.floor(word.length/2) || round != channel.game.round 
                                 || drawer != channel.game.drawer.uuid || new_hint == word 
                             || channel.game.words.picked == channel.game.words.hint) {
                                 clearInterval(hint_interval);
@@ -279,9 +279,10 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         }, 1000 * parseInt(channel.settings.duration) / 2 / 3);
                     }, 1000 * (parseInt(channel.settings.duration) / 2 - parseInt(channel.settings.duration) / 2 / 3));
                     
-                    setTimeout(() => {
-                        if (new Date() < channel.game.expires && drawer == channel.game.drawer.uuid && round == channel.game.round && channel.game.words.picked == word) nextDrawer(socket, channel);
-                    }, (1000 * (1 + parseInt(channel.settings.duration))));
+/*                     setTimeout(() => {
+                        if (new Date() < channel.game.expires && drawer == channel.game.drawer.uuid && round == channel.game.round && channel.game.words.picked == word) 
+                        nextDrawer(socket, channel);
+                    }, (1000 * (1 + parseInt(channel.settings.duration)))); */
 
                 } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_drawer });
             

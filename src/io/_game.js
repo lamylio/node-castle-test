@@ -132,6 +132,10 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             socket.to(channel.id).emit('user_left', { username: socket.username });
             socket.emit('list_users', { users: getUsersByScore(channel) });
             socket.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
+
+            if (channel.game.drawer.uuid == socket.uuid || channel.users.length-1 <= channel.game.words.found.length) {
+                nextDrawer(socket, channel);
+            }
             
             /* If he was the host replace him by the next one */
             if (channel.host.username == socket.username) {
@@ -161,10 +165,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     channel.users[0].score = 0;
                     channel.users[0].hasDrawn = false;
                     return;
-                }
-
-                if(channel.game.drawer.uuid == socket.uuid || channel.users.length == channel.game.words.found.length-1){
-                    nextDrawer(socket, channel);
                 }
             }
         }

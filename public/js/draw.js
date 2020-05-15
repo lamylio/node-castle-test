@@ -228,6 +228,7 @@ function onMouseWheel(e) {
         if (current.size <= 4) return false;
         current.size -= factor;
     }
+    range_pen_size.value = Math.floor((current.size / (current.size > 10 ? 6 : 4)));
     drawCursor();
     return false;
 }

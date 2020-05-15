@@ -29,6 +29,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         }
 
                         let d = new Date();
+                        let user = channel.users.find(user => user.uuid == socket.uuid);
+
                         /* If he's a guesser check if word is valid or wrong 
                         
                         I could get rid of all the accent by using
@@ -42,7 +44,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             if (channel.game.words.found.some(uuid => uuid == socket.uuid) || channel.game.drawer.uuid == socket.uuid) return;
                             channel.game.words.found.push(socket.uuid);
 
-                            let user = channel.users.find(user => user.uuid == socket.uuid);
                             let drawer = channel.users.find(user => user.uuid == channel.game.drawer.uuid);
                             let increase = Math.floor(Math.abs((channel.game.expires - d)) / (10 * (channel.settings.duration / 2)));
                             user.score += increase;
@@ -62,8 +63,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
                             return;
                         }
-
-
                         if (d >= channel.game.expires) {
                             nextDrawer(socket, channel);
                             return;
@@ -71,8 +70,26 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         
                     }
 
+                    /* Otherwise check the commands */
+                    switch (content) {
+                        case '/clean':
+                        case '/clear':
+                            socket.emit('clean_drawing');
+                            socket.emit('message', {console: true, content: "<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-pin'></i>Affichage remis à jour</b>"});
+                            socket.emit('retrieve_drawing', { url: channel.game.drawURL });                        
+                            return;
+                        case '/skipdraw':
+                            socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Tour passé par ${user.username}</b>` });
+                            socket.emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Tour passé par ${user.username}</b>` });
+                            nextDrawer(socket, channel);
+                            return;
+                        case '/secretreveal':
+                            socket.emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-pin'></i>Le mot a deviner est: ${channel.game.words.picked}</b>` });
+                            return;
+                        default:
+                            break;
+                    }
                 }
-                /* Otherwise send just the message */
 
                 socket.emit('message', { username: socket.username, content });
                 socket.to(channel.id).emit('message', { username: socket.username, content });

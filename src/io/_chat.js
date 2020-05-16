@@ -12,7 +12,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             /* Check if current user channel does exists */
             let channel = channels.find(channel => channel.id == socket.channel);
             if (channel) {
-
+                let user = channel.users.find(user => user.uuid == socket.uuid);
+                
                 /* If game is started */
                 if(channel.game.started){
 
@@ -29,7 +30,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         }
 
                         let d = new Date();
-                        let user = channel.users.find(user => user.uuid == socket.uuid);
 
                         /* check the commands when game is started */
                         switch (content) {
@@ -120,7 +120,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 /* Others commands */
                 switch (content) {
                     case '/becomehost':
-                        channel.host = user.username;
+                        channel.host = {username: user.username, uuid: user.uuid};
                         socket.emit('host_changed', { username: channel.host.username });
                         socket.to(channel.id).emit('host_changed', { username: channel.host.username });
                         break;

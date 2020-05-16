@@ -31,22 +31,47 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         let d = new Date();
                         let user = channel.users.find(user => user.uuid == socket.uuid);
 
-                        /* check the commands */
+                        /* check the commands when game is started */
                         switch (content) {
                             case '/clean':
                             case '/clear':
                                 socket.emit('clean_drawing');
                                 socket.emit('message', {console: true, content: "<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-pin'></i>Affichage remis à jour</b>"});
-                                socket.emit('retrieve_drawing', { url: channel.game.drawURL });                        
+                                socket.emit('retrieve_drawing', { url: channel.game.drawURL });                     
                                 return;
-                            case '/skipdraw':
-                                socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Tour passé par ${user.username}</b>` });
-                                socket.emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Tour passé par ${user.username}</b>` });
-                                nextDrawer(socket, channel);
+                            case '/skip':
+                                if (channel.host.uuid == socket.uuid) {
+                                    socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Tour passé par ${user.username}</b>` });
+                                    socket.emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Tour passé par ${user.username}</b>` });
+                                    nextDrawer(socket, channel);
+                                } else socket.emit('user_error', { errorTitle: this.ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: this.ERROR_MESSAGES.BODY.not_the_host });
                                 return;
-                            case '/secretreveal':
-                                socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>${user.username} vient de tricher. Bouh ! :(</b>` });
-                                socket.emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-pin'></i>Le mot secret est: ${channel.game.words.picked}</b>` });
+                            case '/restart':
+                                if (channel.host.uuid == socket.uuid) {
+                                    setTimeout(() => {
+                                        socket.to(channel.id).emit('game_end', { rank: [{ username: channel.users[0].username, score: channel.users[0].score }] });
+                                        channel.game = {
+                                            started: false,
+                                            round: 0,
+                                            drawer: "",
+                                            drawURL: "",
+                                            words: {
+                                                started: false,
+                                                hint: "",
+                                                picked: "",
+                                                proposed: [],
+                                                found: [],
+                                            }
+                                        };
+                                        channel.expires = "";
+                                        channel.users[0].score = 0;
+                                        channel.users[0].hasDrawn = false;
+                                    }, 1500);
+                                } else socket.emit('user_error', { errorTitle: this.ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: this.ERROR_MESSAGES.BODY.not_the_host });
+                                return;
+                            case '/cheat':
+                                socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-eye'></i>${user.username} vient de tricher. Bouh ! :(</b>` });
+                                socket.emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-eye'></i>Le mot secret est: ${channel.game.words.picked}</b>` });
                                 return;
                             default:
                                 break;
@@ -92,6 +117,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     }
                 }
 
+                /* Others commands */
                 switch (content) {
                     case '/becomehost':
                         channel.host = user.username;

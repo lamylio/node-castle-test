@@ -54,7 +54,6 @@ socket.on('game_end', (message) => {
     playAudio(AUDIO.GAME_END);
     setTimeout(() => {
         modal_rank.close();
-        if(!mute)
         playAudio(AUDIO.BACKGROUND, true, 0.1);
     }, 8000);
 });

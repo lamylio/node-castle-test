@@ -145,23 +145,26 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 if(channel.users.length == 1){
                     /* Reset the game propreties */
                     socket.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
-                    socket.to(channel.id).emit('game_end', { rank: [{username: channel.users[0].username, score: channel.users[0].score}]});
-                    channel.game = {
-                        started: false,
-                        round: 0,
-                        drawer: "",
-                        drawURL: "",
-                        words: {
+                    setTimeout(() => {
+                        socket.emit('game_end', { rank: getUsersByScore(channel) });
+                        socket.to(channel.id).emit('game_end', { rank: getUsersByScore(channel) });
+                        channel.game = {
                             started: false,
-                            hint: "",
-                            picked: "",
-                            proposed: [],
-                            found: [],
-                        }
-                    };
-                    channel.expires = "";
-                    channel.users[0].score = 0;
-                    channel.users[0].hasDrawn = false;
+                            round: 0,
+                            drawer: "",
+                            drawURL: "",
+                            words: {
+                                started: false,
+                                hint: "",
+                                picked: "",
+                                proposed: [],
+                                found: [],
+                            }
+                        };
+                        channel.expires = "";
+                        channel.users[0].score = 0;
+                        channel.users[0].hasDrawn = false;
+                    }, 1500);
                     return;
                 }
                 

@@ -98,6 +98,7 @@ for (au in AUDIO) {
 }
 
 function playAudio(audio, loop = false, volume = 1){
+    if (mute) return; 
     let a = audio.audio;
     a.loop = loop;
     a.volume = volume;

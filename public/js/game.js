@@ -16,3 +16,12 @@ async function askUsername() {
     await sanitize(u, (uS) => { localStorage.username = uS });
     window.location.reload();
 }
+
+function switchMute(){
+    mute = !mute;
+    let b = document.querySelector('#mute-button')
+    if(mute) {
+        stopAudio(AUDIO.BACKGROUND);
+        b.classList = "skicon-volume-off";
+    }else b.classList = "skicon-volume-on";
+}

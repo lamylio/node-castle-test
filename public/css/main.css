@@ -110,3 +110,21 @@ input[type=number]:focus {
 .toast-content{
     padding: auto 1em;
 }
+
+/*  */
+
+#mute-button{
+    top: 0.1em;
+    right: 0.1em;
+    font-size: 2rem;
+    position: absolute;
+    cursor: pointer;
+}
+
+#home-button{
+    cursor: pointer;
+    position: absolute;
+    top: 0.1em;
+    left: 0.1em;
+    font-size: 2rem;
+}

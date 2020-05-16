@@ -4,15 +4,14 @@ const chatbox = document.querySelector('.chatbox');
 const input_message = document.querySelector('#input_message');
 input_message.addEventListener('keyup', (e) => { if (e.key == "Enter") { 
     if(input_message.value == "/mute"){
-        mute = !mute;
-        stopAudio(AUDIO.BACKGROUND);
+        switchMute();
     }else{
         socket.emit('send_message', { username: localStorage.username, token: localStorage.token, content: input_message.value }); 
     }
     input_message.value = '' 
 } });
 
-    socket.on('message', createChatMessage);
+socket.on('message', createChatMessage);
 
 function createChatMessage(message) {
     let content;

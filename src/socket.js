@@ -107,6 +107,7 @@ function nextDrawer(socket, channel) {
     channel.game.words.picked = "";
     channel.game.words.proposed = [];
     channel.game.words.found = [];
+    channel.game.drawer = "";
     channel.game.timer = 0;
     
     let next_drawer = channel.users.find(
@@ -129,7 +130,6 @@ function nextDrawer(socket, channel) {
             socket.to(channel.id).emit('game_end', { rank: getUsersByScore(channel) });
 
             channel.game.started = false;
-            channel.game.drawer = "";
             channel.game.round = 0;
             channel.users.map(user => { user.score = 0 });
             return;

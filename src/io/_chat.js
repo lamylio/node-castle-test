@@ -47,6 +47,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                                 } else socket.emit('user_error', { errorTitle: this.ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: this.ERROR_MESSAGES.BODY.not_the_host });
                                 return;
                             case '/restart':
+                                socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Partie terminée par ${user.username}</b>` });
+                                socket.emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Partie terminée par ${user.username}</b>` });
                                 if (channel.host.uuid == socket.uuid) {
                                     setTimeout(() => {
                                         socket.emit('game_end', { rank: getUsersByScore(channel) });

@@ -1,4 +1,3 @@
-/* Largement inspiré de la démo de socket.io (lol) */
 dynamicallyLoadScript("/public/js/floodFill2D.js");
 
 const drawbox = document.querySelector('.drawbox');
@@ -215,7 +214,6 @@ function onMouseMove(e) {
     current.y = y1;
 }
 
-/* Disabled */
 function onMouseWheel(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -232,19 +230,3 @@ function onMouseWheel(e) {
     drawCursor();
     return false;
 }
-
-async function colorPixel(pixel, newColor){
-    current.layer.data[pixel] = newColor[0];
-    current.layer.data[pixel + 1] = newColor[1];
-    current.layer.data[pixel + 2] = newColor[2];
-    current.layer.data[pixel + 3] = 255;
-}
-
-async function matchColor(pixel, startColor){
-    var r = current.layer.data[pixel];
-    var g = current.layer.data[pixel + 1];
-    var b = current.layer.data[pixel + 2];
-    return (r == startColor[0] && g == startColor[1] && b == startColor[2]);
-}
-
-function hexToRGB(hex) {return [(bigint = parseInt(hex, 16)) >> 16 & 255, bigint >> 8 & 255, bigint & 255];}

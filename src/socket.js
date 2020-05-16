@@ -105,6 +105,7 @@ function nextDrawer(socket, channel) {
     /* Reset the round propreties */
     channel.game.drawURL = "";
     channel.game.words.picked = "";
+    channel.game.words.hint = "";
     channel.game.words.proposed = [];
     channel.game.words.found = [];
     channel.game.drawer = "";

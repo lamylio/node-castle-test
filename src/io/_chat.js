@@ -49,7 +49,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             case '/restart':
                                 if (channel.host.uuid == socket.uuid) {
                                     setTimeout(() => {
-                                        socket.to(channel.id).emit('game_end', { rank: [{ username: channel.users[0].username, score: channel.users[0].score }] });
+                                        socket.emit('game_end', { rank: getUsersByScore(channel) });
+                                        socket.to(channel.id).emit('game_end', { rank: getUsersByScore(channel) });
                                         channel.game = {
                                             started: false,
                                             round: 0,

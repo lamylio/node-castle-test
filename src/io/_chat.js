@@ -44,7 +44,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                                     socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Tour passé par ${user.username}</b>` });
                                     socket.emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Tour passé par ${user.username}</b>` });
                                     nextDrawer(socket, channel);
-                                } else socket.emit('user_error', { errorTitle: this.ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: this.ERROR_MESSAGES.BODY.not_the_host });
+                                } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_host });
                                 return;
                             case '/restart':
                                 socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-megaphone'></i>Partie terminée par ${user.username}</b>` });
@@ -70,7 +70,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                                         channel.users[0].score = 0;
                                         channel.users[0].hasDrawn = false;
                                     }, 1500);
-                                } else socket.emit('user_error', { errorTitle: this.ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: this.ERROR_MESSAGES.BODY.not_the_host });
+                                } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_host });
                                 return;
                             case '/cheat':
                                 socket.to(channel.id).emit('message', { console: true, content: `<b class='blue-grey-text text-darken-3 center-align'><i class='skicon-eye'></i>${user.username} vient de tricher. Bouh ! :(</b>` });

@@ -140,7 +140,7 @@ async function useTool(x0, y0, x1, y1) {
     }
 
     socket.emit('drawing', {
-        url: drawbox.toDataURL('image/jpeg', 1.0)
+        url: drawbox.toDataURL('image/webp', 1.0)
     });
 }
 

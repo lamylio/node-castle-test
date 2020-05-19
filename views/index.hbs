@@ -1,9 +1,9 @@
-<div class="container bordered ">
+<div class="container bordered margined">
 
     <div class="section">
 
         <div class="section">
-            <h1 id="title_name">Skribbl.io ?</h1>
+            <h1 id="title_name">Skribbl.io</h1>
             <h5 id="title_desc"></h5>
             <small>({{manulex}} mots)</small>
         </div>
@@ -30,34 +30,95 @@
 
     </div>
     <hr>
-    <div class="section">
-        <h5>Infos pour les noobs</h5>
+    <ul class="collapsible">
+        <li>
+            <div class="collapsible-header flow-text center-align"><i class="skicon-info-circled"></i> Informations</div>
+            <div class="collapsible-body">
 
-        <p>
-            Le principe du jeu est de faire deviner aux autres joueurs un mot choisi au hasard en le dessinant dans un temps imparti.<br>
-            Des points sont ajoutés à ceux qui trouvent (et au dessinateur) en fonction du temps restant.<br>
-            Les réponses doivent être données dans le chat.
-        </p>
+                <div>
+                    <b>Skribb.lio est un jeu de dessin multijoueur fortement inspiré de Skribbl.io et dans le principe de Pictionary.</b>   <br>
+                    L'objectif est de faire deviner aux autres joueurs un mot choisi au hasard en le dessinant dans un temps imparti.<br>
+                    Des points sont ajoutés en fonction du temps restant. Le joueur avec le plus de points gagne la partie.<br>
+                </div>
 
-        <p>
-            Plusieurs couleurs sont disponibles dans la palette ainsi qu'un sceau et une poubelle.<br>
-            La taille du pinceau est changeable via la roulette de la souris ou une barre.
-        </p>
+                <ul class="collapsible">
+                    <li>
+                        <div class="collapsible-header">
+                            <i class="skicon-gamepad"></i> Comment jouer ?
+                        </div>
+                
+                        <div class="collapsible-body">
+                            <p>
+                                Tout d'abord, rejoignez une partie via son identifiant ou créez en une nouvelle.<br>
+                                Chaque partie est composée de rounds d'une durée de 30 à 180 secondes.
+                            </p>
+                            <p>
+                                Lorsque c'est à votre tour, vous serez invité à choisir un mot parmi 4 aléatoires.<br>
+                                A l'aide de votre souris ou de votre doigt sur <i class="skicon-mobile"></i> dessinez le mot dans le délai imparti.
+                                Une palette de couleurs, un sceau <small>(<i class="skicon-bucket"></i>)</small> et une poubelle <small>(<i class="skicon-trash"></i>)</small> sont à votre disposition.
+                            </p>
+                            <p>
+                                En tant qu'observeur, vous devez deviner le mot en l'écrivant <b>dans le chat.</b> <br>
+                            </p>
+                        </div>
+                    </li>
 
-        <p>
-            Si par malheur votre dessin venait à être bloqué sur celui du tour précédent, vous pouvez taper <code>/clean</code> dans le chat.<br>
-            Ecrivez <code>/mute</code> si la guitare vous monte à la tête.
-        </p>
-
-        <p>
-            <small>Développé avec passion ❤</small>
-        </p>
-    </div>
+                    <li>
+                        <div class="collapsible-header">
+                            <i class="skicon-award"></i> Comment gagner ?
+                        </div>
+                    
+                        <div class="collapsible-body">
+                            <p>
+                                <b> Il faut jouer correctement <i class="skicon-emo-thumbs-up"></i></b> <br>
+                                La vitesse est très importante.
+                            </p>
+                            <p>
+                                Sachez que vous gagnez : <br>
+                                <small><code>&lt;temps restant (ms)&gt; / (5 * &lt;durée du round (s)&gt;)</code></small>
+                                <br><br>
+                                Et en tant que dessinateur, à chaque fois qu'un joueur trouve : <br>
+                                <small><code>&lt;points&gt; / (&lt;nombre de joueurs&gt; + 1.1)</code></small>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="collapsible-header">
+                            <i class="skicon-star"></i> Astuces
+                        </div>
+                    
+                        <div class="collapsible-body">
+                            <p>
+                                <b>La taille du pinceau est changeable via la roulette de la souris.</b>
+                            </p>
+                            <p>
+                                Si par malheur votre dessin venait à être bloqué sur celui du tour précédent ou ne s'actualise plus, vous pouvez taper <code>/clean</code> dans le chat.<br>
+                            </p>
+                            <p>
+                                Cliquez sur <i class="skicon-volume-on"></i> si la guitare vous monte à la tête.
+                            </p>
+                            
+                            <p>
+                                Si vous trouvez un <i class="skicon-bug"></i> reportez-le moi 
+                            </p>
+                        </div>
+                    </li>
+                </ul>
+                <p>
+                    <b>Jouer à plusieurs c'est plus marrant, alors invitez des amis !</b>
+                </p>
+                <small>
+                    Développé avec passion <i class="skicon-heart"></i><br>
+                    <i class="skicon-terminal"></i>Lioche
+                </small>
+            </div>
+        </li>
+    </ul>    
 </div>
 
 <script>
 let title_name = document.querySelector('#title_name'), title_desc = document.querySelector('#title_desc');
-let to_write = {title: ".lio", desc: "La même chose made by Lioche"}, rpos = -5, ti = 150;
+let to_write = {title: ".lio", desc: "La même chose made by Lioche"}, rpos = -4, ti = 150;
 
 function type(){
     if(rpos >= to_write.desc.length+4) return;

@@ -21,7 +21,7 @@ main {
 }
 
 .margined {
-    margin: 5% auto;
+    margin: 3% auto;
 }
 
 .bordered{
@@ -71,6 +71,26 @@ input[type=number]:focus {
 
 
 /* ----- Materialize.css ----- */
+
+.collapsible-header{
+    display: block !important;
+    font-weight: bold;
+}
+
+.collapsible .collapsible{
+    width: 70%;
+    max-width: 600px;
+    margin: 2em auto;
+}
+
+@media screen and (max-width: 950px){
+
+    .collapsible .collapsible{
+        width: 100%;
+    }
+
+}
+
 
 #toast-container{
     position: absolute;

@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'skicon';
-  src: url('../font/skicon.eot?65484401');
-  src: url('../font/skicon.eot?65484401#iefix') format('embedded-opentype'),
-       url('../font/skicon.woff2?65484401') format('woff2'),
-       url('../font/skicon.woff?65484401') format('woff'),
-       url('../font/skicon.ttf?65484401') format('truetype'),
-       url('../font/skicon.svg?65484401#skicon') format('svg');
+  src: url('../font/skicon.eot?57841345');
+  src: url('../font/skicon.eot?57841345#iefix') format('embedded-opentype'),
+       url('../font/skicon.woff2?57841345') format('woff2'),
+       url('../font/skicon.woff?57841345') format('woff'),
+       url('../font/skicon.ttf?57841345') format('truetype'),
+       url('../font/skicon.svg?57841345#skicon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'skicon';
-    src: url('../font/skicon.svg?65484401#skicon') format('svg');
+    src: url('../font/skicon.svg?57841345#skicon') format('svg');
   }
 }
 */
@@ -55,7 +55,7 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
  
-.skicon-pencil:before { content: '\e800'; } /* '' */
+.skicon-mobile:before { content: '\e800'; } /* '' */
 .skicon-bucket:before { content: '\e801'; } /* '' */
 .skicon-palette:before { content: '\e802'; } /* '' */
 .skicon-chat:before { content: '\e803'; } /* '' */
@@ -71,11 +71,20 @@
 .skicon-volume-off:before { content: '\e80d'; } /* '' */
 .skicon-eye:before { content: '\e80e'; } /* '' */
 .skicon-home:before { content: '\e80f'; } /* '' */
+.skicon-emo-sunglasses:before { content: '\e810'; } /* '' */
+.skicon-emo-thumbs-up:before { content: '\e811'; } /* '' */
+.skicon-computer:before { content: '\e812'; } /* '' */
+.skicon-users:before { content: '\e813'; } /* '' */
+.skicon-info-circled:before { content: '\e814'; } /* '' */
+.skicon-attention-circled:before { content: '\e815'; } /* '' */
 .skicon-fullscreen:before { content: '\f0b2'; } /* '' */
 .skicon-lightbulb:before { content: '\f0eb'; } /* '' */
 .skicon-plus-squared:before { content: '\f0fe'; } /* '' */
+.skicon-gamepad:before { content: '\f11b'; } /* '' */
+.skicon-terminal:before { content: '\f120'; } /* '' */
 .skicon-eraser:before { content: '\f12d'; } /* '' */
 .skicon-minus-squared:before { content: '\f146'; } /* '' */
+.skicon-bug:before { content: '\f188'; } /* '' */
 .skicon-trash:before { content: '\f1f8'; } /* '' */
 .skicon-brush:before { content: '\f1fc'; } /* '' */
 .skicon-user-circle:before { content: '\f2bd'; } /* '' */

@@ -140,7 +140,7 @@ async function useTool(x0, y0, x1, y1) {
     }
 
     socket.emit('drawing', {
-        url: drawbox.toDataURL()
+        url: drawbox.toDataURL('image/jpeg', 1.0)
     });
 }
 
@@ -160,7 +160,6 @@ function onColorUpdate(e) {
 
 function onToolUpdate(e){
     let attr = e.getAttribute('tool');
-    console.log(attr);
     current.tool = TOOLS[attr];
     console.log(current.tool);
     for (let t of document.querySelectorAll('.tool')) {

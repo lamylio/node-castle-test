@@ -224,7 +224,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 let value = sanitize(message.setting.value, { allowedTags: [] });
                 let channel = channels.find(channel => channel.id == socket.channel);
                 
-                if(value < 1 || value > 300) return;
+                if(value < 2 || value > 300) return;
                 channel.settings[name] = value;
                 socket.to(channel.id).emit('settings_changed', { settings: channel.settings });
             }

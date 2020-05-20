@@ -28,9 +28,10 @@ this.app.set('view engine', 'hbs');
 
 this.app.use('/public', this.express.static('public'));
 
-let manulex = fs.readFileSync(this.path.join(__dirname, "src", "manulex_combined.json")).toString().split(',');
-
-module.exports.manulex = manulex;
+module.exports.manulex = require(this.path.join(__dirname, "src", "manulex_combined.json")).words;
+let game_stats = require(this.path.join(__dirname, "src", "game_stats.json"));
+module.exports.game_stats = game_stats;
+module.exports.saveStats = () => {fs.writeFile(this.path.join(__dirname, "src", "game_stats.json"), JSON.stringify(this.game_stats), () => {})}
 
 /* Routes */
 require('./src/express.js');

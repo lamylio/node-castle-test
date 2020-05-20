@@ -1,4 +1,4 @@
-const { sanitize, manulex, throttle } = require('../../app.js');
+const { sanitize, manulex, game_stats, throttle, saveStats } = require('../../app.js');
 const { nextDrawer, isHost, getUsersByScore } = require('../socket.js');
 const uuid = require('uuid');
 
@@ -125,6 +125,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
             /* If there's no more user deletes the channel */
             if (channel.users.length == 0) {
+                saveStats();
                 channels.splice(channel.index, 1);
                 return;
             }
@@ -202,12 +203,14 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
                 channel.game.started = true;
                 channel.game.round++;
-
+                
                 socket.emit('game_start');
                 socket.to(socket.channel).emit('game_start');
                 
                 nextDrawer(socket, channel);
-
+                
+                game_stats.game_count++;
+                
             } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.not_enough_players, errorMessage: ERROR_MESSAGES.BODY.not_enough_players });         
         }
     });
@@ -232,7 +235,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
     socket.on('word_picked', (message) => {
         if (!socket.uuid || !socket.channel) return;
         if (message.word) {
-            let word = sanitize(message.word, { allowedTags: [] });
+            let word = sanitize(message.word, { allowedTags: [] }).toUpperCase();
 
             /* Check if current user channel does exists */
             let channel = channels.find(channel => channel.id == socket.channel);
@@ -251,6 +254,9 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     channel.game.words.started = true;
                     channel.game.drawer.hasDrawn = true;
 
+                    if (game_stats.frequencies[word]) game_stats.frequencies[word]++;
+                    else game_stats.frequencies[word] = 1;
+
                     let d = new Date();
                     /* 1 second more bc lag */
                     d = new Date(d.getTime() + (1000 * (1 + parseInt(channel.settings.duration))));
@@ -266,6 +272,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     let new_hint;
                     setTimeout(() => {
                         hint_interval = setInterval(() => {
+                            /* So much conditions lol */
                             if (new Date() >= channel.game.expires || count >= Math.floor(word.length/2) || round != channel.game.round 
                                 || drawer != channel.game.drawer.uuid || new_hint == word 
                             || channel.game.words.picked == channel.game.words.hint) {
@@ -274,7 +281,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             }
 
                             let rd = Math.floor(word.length/2);
-                            /* Dont pick a letter which has been already picked */  
+                            /* Dont pick a letter which has already been picked */
                             while(channel.game.words.hint.charAt(rd) == word.charAt(rd)){
                                 rd = Math.floor(Math.random() * word.length); 
                             }
@@ -285,11 +292,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             count++;
                         }, 1000 * parseInt(channel.settings.duration) / 2 / 3);
                     }, 1000 * (parseInt(channel.settings.duration) / 2 - parseInt(channel.settings.duration) / 2 / 3));
-                    
-/*                     setTimeout(() => {
-                        if (new Date() < channel.game.expires && drawer == channel.game.drawer.uuid && round == channel.game.round && channel.game.words.picked == word) 
-                        nextDrawer(socket, channel);
-                    }, (1000 * (1 + parseInt(channel.settings.duration)))); */
 
                 } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_drawer });
             

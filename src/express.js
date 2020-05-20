@@ -1,4 +1,4 @@
-const {express, app, sanitize, path, manulex} = require('../app.js');
+const {express, app, sanitize, path, manulex, game_stats} = require('../app.js');
 let { getChannels } = require('./socket.js');
 
 app.use(express.json());
@@ -26,6 +26,10 @@ app.post('/sanitize', (req, res) => {
 
 app.get('/channels', (req, res) => {
     res.jsonp(getChannels());
+})
+
+app.get('/stats', (req, res) => {
+    res.jsonp(game_stats);
 })
 
 app.get('/channel/:id?', (req, res, next) => {

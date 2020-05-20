@@ -1,5 +1,5 @@
 
-if(!localStorage.username) setTimeout(askUsername, 5000);
+if(!localStorage.username) setTimeout(askUsername, 3500);
 socket.emit('join_game', {id: game_id, username: localStorage.username, token: localStorage.token});
 
 const modal_pick = M.Modal.init(document.querySelector('#pick'), { dismissible: false, startingTop: '10%', endingTop: '20%' });

@@ -1,4 +1,4 @@
-const { io, sanitize, manulex } = require('../app.js');
+const { io, sanitize, manulex, game_stats, saveStats} = require('../app.js');
 
 module.exports.ERROR_MESSAGES = {
     TITLES: {
@@ -126,26 +126,29 @@ function nextDrawer(socket, channel) {
             socket.to(channel.id).emit('next_round', { round: channel.game.round });
         } else {
             /* TODO - END THE GAME */
-        
-            socket.emit('game_end', { rank: getUsersByScore(channel) });
-            socket.to(channel.id).emit('game_end', { rank: getUsersByScore(channel) });
+            let rank = getUsersByScore(channel);
+            socket.emit('game_end', { rank  });
+            socket.to(channel.id).emit('game_end', { rank });
 
             channel.game.started = false;
             channel.game.round = 0;
             channel.users.map(user => { user.score = 0 });
+
+            if (rank[0].score > game_stats.max_points) game_stats.max_points = rank[0].score;
+            if (rank[0].score / channel.settings.rounds > game_stats.max_ratio) game_stats.max_ratio = (rank[0].score / parseInt(channel.settings.rounds));
+            saveStats();
             return;
         }
     }
     channel.game.words.proposed = [
-        manulex[Math.floor(Math.random() * manulex.length)],
-        manulex[Math.floor(Math.random() * manulex.length)],
-        manulex[Math.floor(Math.random() * manulex.length)],
-        manulex[Math.floor(Math.random() * manulex.length)]
+        getRandomWord(),
+        getRandomWord(),
+        getRandomWord(),
+        getRandomWord(),
     ];
 
     channel.game.words.proposed.sort((a, b) => a.length - b.length);
     channel.game.drawer = next_drawer;
-
     
     socket.emit('drawer_changed', { username: next_drawer.username });
     socket.to(channel.id).emit('drawer_changed', { username: next_drawer.username });
@@ -160,6 +163,14 @@ function nextDrawer(socket, channel) {
     else socket.broadcast.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
 }
 
+function getRandomWord(){
+    let r = Math.floor(Math.random() * manulex.length);
+    let w = manulex[r];
+    while(game_stats.frequencies[w] > game_stats.game_count / 10){
+        w = manulex[++r];
+    }
+    return w;
+}
 
 function getUsersByScore(channel){
     let ordered = channel.users.sort((a, b) => b.score - a.score);

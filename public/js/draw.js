@@ -1,35 +1,41 @@
 dynamicallyLoadScript("/public/js/floodFill2D.js");
 
 const drawbox = document.querySelector('.drawbox');
-const drawzone= document.querySelector('.drawzone');
+const drawzone = document.querySelector('.drawzone');
+const range_pen_size = document.querySelector('#input_pen_size');
 
 const colors = {
     selector: document.querySelector('.colorzone'),
-    values: [  
+    values: [
         ["#154360", "#1F618D", "#5499C7", "#5DADE2", "#73C6B6", "#229954", "#196F3D", "#145A32"],
         ["#512E5F", "#884EA0", "#BB8FCE", "#D7BDE2", "#F7DC6F", "#F1C40F", "#B7950B", "#9C640C"],
         ["#641E16", "#922B21", "#C0392B", "#EC7063", "#DC7633", "#D35400", "#A04000", "#6E2C00"],
     ]
 }
 
-let context = drawbox.getContext('2d');
-context.imageSmoothingEnabled = false;
-
 const TOOLS = {
     PEN: 0,
     BUCKET: 1
 }
 
-let drawing = false;
-let bucket = false;
-let current = {
-    color: '#111000',
-    colorElement: document.querySelector(".color[color='#111000']"),
-    size: 8,
-    tool: TOOLS.PEN
-};
+let context, drawing, bucket, current;
+document.body.onload = () => {
 
-let mouse = {x: 0, y:0}
+    context = drawbox.getContext('2d');
+    context.imageSmoothingEnabled = false;
+
+    drawing = false;
+    bucket = false;
+    current = {
+        color: '#111000',
+        colorElement: document.querySelector(".color.default"),
+        size: 8,
+        tool: TOOLS.PEN
+    };
+
+    changeBoxSize();
+    drawCursor();
+}
 
 /* Register events */
 
@@ -46,9 +52,6 @@ drawzone.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 drawzone.addEventListener("wheel", onMouseWheel, {passive: false});
 window.onresize = changeBoxSize;
 
-changeBoxSize();
-drawCursor();
-
 /* Set up the colors palette */
 
 for (let i = 0; i < colors.values.length; i++) {
@@ -64,7 +67,6 @@ for(color of document.querySelectorAll('.colors')){
     color.addEventListener('click', onColorUpdate);
 }
 
-const range_pen_size = document.querySelector('#input_pen_size');
 range_pen_size.onchange = (e) => {
     let factor = 4;
     if(e.target.value > 3) factor = 6;
@@ -161,7 +163,6 @@ function onColorUpdate(e) {
 function onToolUpdate(e){
     let attr = e.getAttribute('tool');
     current.tool = TOOLS[attr];
-    console.log(current.tool);
     for (let t of document.querySelectorAll('.tool')) {
         t.style.opacity = "0.6";
     }

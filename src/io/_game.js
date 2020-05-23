@@ -132,7 +132,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
             /* Otherwise continue */
             socket.to(channel.id).emit('user_left', { username: socket.username });
-            socket.emit('list_users', { users: getUsersByScore(channel) });
             socket.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
             
             /* If he was the host replace him by the next one */
@@ -144,11 +143,12 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             if(channel.game.started){
                 channel.game.words.found = channel.game.words.found.filter(user => user != socket.uuid);
                 if(channel.users.length == 1){
-                    /* Reset the game propreties */
-                    socket.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
+                    /* If we have 1 user, wait 5s and if nobody has joined end the game */
                     setTimeout(() => {
-                        socket.emit('game_end', { rank: getUsersByScore(channel) });
+                        if(channel.users.length > 1 || !channel.game.started) return;
+                        socket.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
                         socket.to(channel.id).emit('game_end', { rank: getUsersByScore(channel) });
+                        /* Reset the game propreties */
                         channel.game = {
                             started: false,
                             round: 0,
@@ -165,11 +165,9 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         channel.expires = "";
                         channel.users[0].score = 0;
                         channel.users[0].hasDrawn = false;
-                    }, 1500);
-                    return;
-                }
-                
-                if (channel.game.drawer.uuid == socket.uuid || channel.users.length - 1 <= channel.game.words.found.length) {
+                    }, 5000);
+                }else{
+                    if (channel.game.drawer.uuid == socket.uuid || channel.users.length - 1 <= channel.game.words.found.length)
                     nextDrawer(socket, channel);
                 }
             }

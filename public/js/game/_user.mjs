@@ -23,7 +23,8 @@ socket.on('host_changed', (message) => {
 });
 
 socket.on('drawer_changed', (message) => {
-    drawzone.setAttribute('disabled', '');
+    if (message.username == localStorage.username) drawzone.removeAttribute('disabled');
+    else drawzone.setAttribute('disabled', '');
     createChatMessage({ console: true, content: `<b class="blue-text text-darken-3"><i class='skicon-pencil'></i> ${message.username} dessine.</b>` });
 });
 

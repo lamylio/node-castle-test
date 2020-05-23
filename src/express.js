@@ -68,11 +68,11 @@ app.get('/game/:id?', (req, res, next) => {
 
 /* Errors Handeling */
 
-app.use(/(game|channel)+\/?(\w)?/, (req, res, next) => {
+app.use("/game/:id", (req, res, next) => {
     res.status(400).render('error', {
         title: "Skribb.lio - 400",
         errorType: "400 Bad Request",
-        errorMessage: "Navré, cet identifiant n'est pas valide."
+        errorMessage: "Navré, cet identifiant de jeu n'est pas valide."
     });
 });
 

@@ -2,12 +2,21 @@
     <h1>{{ errorType }}</h1>
     <h2>{{ errorMessage }}</h2>
 
-    <p class="flow-text">(Je m'occuperai de faire une belle page d'erreur avec une redirection et une barre qui défile plus tard)</p>
-    <a class="waves-effect waves-light btn-large grey darken-3" href="/"><h5>Accueil</h5></a>
+    <p class="flow-text">Vous allez être redirigé vers l'accueil</p>
+    <div class="progress" style="position: fixed; top: 0; left: 0; margin: 0; width: 100vw;">
+        <div class="determinate" style="width: 0"></div>
+    </div>
 </center>
 
 <script>
-    setTimeout(() => {
-        window.location = "/";
-    }, 2500);
+    const selector = document.querySelector(".progress").firstElementChild;
+    const progress = {
+        init: function (ms) {
+            let seconds = ms/1000;
+            selector.style.transitionDuration = seconds + "s";
+            selector.style.width = '100%';
+            setTimeout(() => { window.location = '/' }, ms);
+        }
+    }
+    document.body.onload = () => {progress.init(3000);}
 </script>

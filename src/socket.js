@@ -136,7 +136,6 @@ function nextDrawer(socket, channel) {
 
             if (rank[0].score > game_stats.max_points) game_stats.max_points = rank[0].score;
             if (rank[0].score / channel.settings.rounds > game_stats.max_ratio) game_stats.max_ratio = (rank[0].score / parseInt(channel.settings.rounds));
-            saveStats();
             return;
         }
     }

@@ -168,7 +168,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     channel.users[0].hasDrawn = false;
 
                 } else if (channel.game.drawer.uuid == socket.uuid || channel.users.length - 1 <= channel.game.words.found.length) nextDrawer(socket, channel);
-            }, 8000);
+            }, 10000);
         }
     });
 

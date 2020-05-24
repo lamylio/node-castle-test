@@ -113,8 +113,10 @@ function nextDrawer(socket, channel) {
     channel.game.timer = 0;
     
     let next_drawer = channel.users.find(
-        user => user.hasDrawn == false 
-        && user.uuid != channel.game.drawer.uuid
+        user => 
+        user.uuid != channel.game.drawer.uuid
+        && !user.hasDrawn
+        && user.connected
     );
 
     if (!next_drawer) {
@@ -150,7 +152,7 @@ function nextDrawer(socket, channel) {
     io.to(channel.id).emit('drawer_changed', { username: next_drawer.username });
     io.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
     io.to(channel.id).emit('clean_drawing');
-    
+
     io.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
 }
 

@@ -102,6 +102,11 @@ function nextDrawer(socket, channel) {
         channel.game.words.hint = channel.game.words.picked;
         io.to(channel.id).emit('hint_word', { word: channel.game.words.picked });
         io.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
+
+        if(channel.game.words.found.length == 0){
+            let u = channel.users.find(user => user.uuid == channel.game.drawer.uuid);
+            u.score -= (10*channel.users.length);
+        }
     }
     
     /* Reset the round propreties */

@@ -216,6 +216,7 @@ function onMouseMove(e) {
 function onMouseWheel(e) {
     e.preventDefault();
     e.stopPropagation();
+    if(drawzone.hasAttribute('disabled')) return;
     wUp = e.wheelDelta > 0 ? true : false;
     let factor = 2;
     if (wUp) {

@@ -131,15 +131,17 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 /* Filter to remove the disconnected user */
                 channel.users = channel.users.filter(user => user.uuid != socket.uuid);
                 channel.game.words.found = channel.game.words.found.filter(user => user != socket.uuid);
-
+                
                 /* If there's no more user deletes the channel */
                 if (channel.users.length == 0) {
-                    saveStats();
+                    channels.map(chan => {if(chan.index > channel.index) chan.index--});
                     channels.splice(channel.index, 1);
+                    saveStats();
                     return;
                 }
 
                 /* Otherwise continue */
+
 
                 /* If he was the host replace him by the next one */
                 if (channel.host.uuid == socket.uuid) {

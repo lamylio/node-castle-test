@@ -15,6 +15,7 @@ module.exports.ERROR_MESSAGES = {
         wrong_format: "Mauvais format",
         wrong_word: "Mauvais mot",
 
+        user_not_found: "Utilisateur introuvable",
         game_not_found: "Partie introuvable",
         game_not_started: "Partie en attente",
         not_enough_players: "Pas assez de joueurs",
@@ -35,6 +36,7 @@ module.exports.ERROR_MESSAGES = {
         wrong_format: "Le format reçu ne correspond pas au format requis.",
         wrong_word: "Le mot reçu ne fait pas partie de la sélection.",
 
+        user_not_found: "Le joueur demandé n'existe pas.",
         game_not_found: "La partie demandée n'existe pas ou plus.",
         game_not_started: "La partie n'a pas encore commencé.<br> Aucun dessin à récupérer.",
 
@@ -98,8 +100,7 @@ function nextDrawer(socket, channel) {
 
     if(channel.game.words.picked != ""){
         channel.game.words.hint = channel.game.words.picked;
-        socket.emit('reveal_word', { word: channel.game.words.picked });
-        socket.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
+        io.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
     }
     
     /* Reset the round propreties */
@@ -122,20 +123,17 @@ function nextDrawer(socket, channel) {
         if (channel.game.round < channel.settings.rounds) {
             next_drawer = channel.users[0];
             channel.game.round++;
-            socket.emit('next_round', { round: channel.game.round });
-            socket.to(channel.id).emit('next_round', { round: channel.game.round });
+            io.to(channel.id).emit('next_round', { round: channel.game.round });
         } else {
             /* TODO - END THE GAME */
             let rank = getUsersByScore(channel);
-            socket.emit('game_end', { rank  });
-            socket.to(channel.id).emit('game_end', { rank });
+            io.to(channel.id).emit('game_end', { rank });
 
             channel.game.started = false;
             channel.game.round = 0;
             channel.users.map(user => { user.score = 0 });
 
             if (rank[0].score > game_stats.max_points) game_stats.max_points = rank[0].score;
-            if (rank[0].score / channel.settings.rounds > game_stats.max_ratio) game_stats.max_ratio = (rank[0].score / parseInt(channel.settings.rounds));
             return;
         }
     }
@@ -149,17 +147,11 @@ function nextDrawer(socket, channel) {
     channel.game.words.proposed.sort((a, b) => a.length - b.length);
     channel.game.drawer = next_drawer;
     
-    socket.emit('drawer_changed', { username: next_drawer.username });
-    socket.to(channel.id).emit('drawer_changed', { username: next_drawer.username });
+    io.to(channel.id).emit('drawer_changed', { username: next_drawer.username });
+    io.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
+    io.to(channel.id).emit('clean_drawing');
     
-    socket.emit('list_users', { users: getUsersByScore(channel) });
-    socket.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
-    
-    socket.emit('clean_drawing');
-    socket.to(channel.id).emit('clean_drawing');
-    
-    if(socket.uuid == next_drawer.uuid) socket.emit('pick_word', { words: channel.game.words.proposed });
-    else socket.broadcast.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
+    io.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
 }
 
 function getRandomWord(){

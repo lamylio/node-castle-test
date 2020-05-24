@@ -25,7 +25,7 @@ socket.on('host_changed', (message) => {
 socket.on('drawer_changed', (message) => {
     if (message.username == localStorage.username) drawzone.removeAttribute('disabled');
     else drawzone.setAttribute('disabled', '');
-    createChatMessage({ console: true, content: `<b class="blue-text text-darken-3"><i class='skicon-pencil'></i> ${message.username} dessine.</b>` });
+    createChatMessage({ console: true, content: `<b class="blue-text text-darken-3"><i class='skicon-palette'></i> ${message.username} dessine.</b>` });
 });
 
 /* --- */

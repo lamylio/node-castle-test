@@ -1,12 +1,15 @@
 const socket = io();
 
 socket.on('disconnect', (reason) => {
+    refresh = 3000;
     switch (reason) {
         case 'ping timeout':
             reason = "Votre connexion est interrompue ou trop lente.";
+            refresh = 1000;
             break;
         case 'server namespace disconnect':
             reason = "Vous avez été exclu de la partie.";
+            refresh = 100;
             break;
         case 'transport error':
         case 'transport close':
@@ -19,7 +22,7 @@ socket.on('disconnect', (reason) => {
     showErrorMessage({errorTitle: "Vous êtes déconnecté", errorMessage: "Raison : " + reason});
     setTimeout(() => {
         window.location = "/";
-    }, 3000);
+    }, refresh);
 })
 
 socket.emit('identity', {token: localStorage.token});

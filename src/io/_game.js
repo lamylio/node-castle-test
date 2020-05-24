@@ -1,4 +1,4 @@
-const { sanitize, manulex, game_stats, throttle, saveStats } = require('../../app.js');
+const { io, sanitize, manulex, game_stats, throttle, saveStats } = require('../../app.js');
 const { nextDrawer, isHost, getUsersByScore } = require('../socket.js');
 const uuid = require('uuid');
 
@@ -44,7 +44,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 locked: true
             });
             /* Notify the user and send the link (id) of the game */
-            socket.join(game_id);
             socket.emit('game_redirect', { id: game_id });              
         }
     });
@@ -63,48 +62,45 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 /* Check if the channel with that id exists */
                 let channel = channels.find(channel => channel.id == id);
                 if (channel) {
-                    /* Check if the username is already taken */
-                    if (channel.users.some(user => user.username == socket.username)) {
-                        /* Check if the token is already used */
-                        if (channel.users.some(user => user.uuid == socket.uuid)) {
-                            socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.token_already_exists, errorMessage: ERROR_MESSAGES.BODY.token_already_exists });
-                            return;
+                    let user = channel.users.find(user => user.uuid == socket.uuid);
+                    if(!user || !user.connected){
+                    
+                        if(!user){
+                            /* Check if the username is already taken */
+                            if (channel.users.some(user => user.username == socket.username)) {
+                                socket.username = manulex[Math.floor(Math.random() * manulex.length)];
+                                socket.emit('username_already_taken', { username: socket.username });
+                                socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.username_already_taken, errorMessage: ERROR_MESSAGES.BODY.username_already_taken });
+                            }
+
+                            channel.users.push({ username: socket.username, uuid: socket.uuid, score: 0, connected: true, hasDrawn: false });
+                        }else user.connected = true;
+                        
+                        socket.channel = channel.id;
+                        /* Join, get users and broadcast it in the channel */
+                        socket.join(socket.channel);
+                        socket.join(socket.uuid);
+
+                        io.to(channel.id).emit('user_joined', { username: socket.username });
+                        io.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
+
+                        /* Unlock the channel when the host join */
+                        if (channel.host.uuid == socket.uuid) {
+                            channel.locked = false;
+                            socket.emit('host_changed', { username: socket.username });
                         }
-                        socket.username = manulex[Math.floor(Math.random() * manulex.length)];
-                        socket.emit('username_already_taken', {username: socket.username});
-                        socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.username_already_taken, errorMessage: ERROR_MESSAGES.BODY.username_already_taken });
-                    }
 
-                    /* Register the joining user */
-                    channel.users.push({ username: socket.username, uuid: socket.uuid, score: 0, hasDrawn: false});
-                    socket.channel = channel.id;
+                        /* Retrieve the drawer/drawing if game already started */
+                        if (channel.game.started){
+                            socket.emit('game_start');
+                            socket.emit('drawer_changed', { username: channel.game.drawer.username })
+                            socket.emit('retrieve_drawing', { url: channel.game.drawURL });
+                            if(channel.game.words.picked != "")
+                                socket.emit('hint_word', { word: channel.game.words.hint, expires: Math.floor((channel.game.expires-new Date())/1000) });
+                        }
+                        socket.emit('settings_changed', {settings: channel.settings});
 
-                    /* Join, get users and broadcast it in the channel */
-                    socket.join(socket.uuid);
-                    socket.join(socket.channel);
-
-                    socket.emit('user_joined', { username: socket.username });
-                    socket.to(socket.channel).emit('user_joined', { username: socket.username });
-
-                    socket.emit('list_users', { users: getUsersByScore(channel) });
-                    socket.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
-
-                    /* Unlock the channel when the host join */
-                    if (channel.host.uuid == socket.uuid) {
-                        channel.locked = false;
-                        socket.emit('host_changed', { username: socket.username });
-                    }
-
-                    /* Retrieve the drawer/drawing if game already started */
-                    if (channel.game.started){
-                        socket.emit('game_start');
-                        socket.emit('drawer_changed', { username: channel.game.drawer.username })
-                        socket.emit('retrieve_drawing', { url: channel.game.drawURL });
-                        if(channel.game.words.picked != "")
-                            socket.emit('hint_word', { word: channel.game.words.hint, expires: Math.floor((channel.game.expires-new Date())/1000) });
-                    }
-                    socket.emit('settings_changed', {settings: channel.settings});
-
+                    }else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.token_already_exists, errorMessage: ERROR_MESSAGES.BODY.token_already_exists });
                 } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.game_not_found, errorMessage: ERROR_MESSAGES.BODY.game_not_found });
             } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_format, errorMessage: ERROR_MESSAGES.BODY.wrong_format });        
         }
@@ -118,60 +114,61 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
         let channel = channels.find(channel => channel.id == socket.channel);
         if(channel){
-            if (channel.locked) return;
-
-            /* Filter to remove the disconnected user (so user can only be in 1 game at a time) */
-            channel.users = channel.users.filter(user => user.uuid != socket.uuid);
-
-            /* If there's no more user deletes the channel */
-            if (channel.users.length == 0) {
-                saveStats();
-                channels.splice(channel.index, 1);
-                return;
-            }
-
-            /* Otherwise continue */
-            socket.to(channel.id).emit('user_left', { username: socket.username });
-            socket.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
+            let user = channel.users.find(u => u.uuid == socket.uuid);
             
-            /* If he was the host replace him by the next one */
-            if (channel.host.username == socket.username) {
-                channel.host = channel.users[0];
-                socket.to(channel.id).emit('host_changed', { username: channel.host.username });
-            }
+            user.connected = false;
+            io.to(channel.id).emit('user_left', { username: socket.username });
+            console.log(user);
+
+            //if (channel.game.started) io.to(channel.id).emit('message', { console: true, content: `<b class='pink-text text-darken-4 center-align'><i class='skicon-info-circled'></i>${socket.username} a 8 secondes pour se reconnecter.</b>` });
             
-            if(channel.game.started){
+            setTimeout(() => {
+                if(user.connected) return;
+
+                /* Filter to remove the disconnected user */
+                channel.users = channel.users.filter(user => user.uuid != socket.uuid);
                 channel.game.words.found = channel.game.words.found.filter(user => user != socket.uuid);
-                if(channel.users.length == 1){
-                    /* If we have 1 user, wait 5s and if nobody has joined end the game */
-                    setTimeout(() => {
-                        if(channel.users.length > 1 || !channel.game.started) return;
-                        socket.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
-                        socket.to(channel.id).emit('game_end', { rank: getUsersByScore(channel) });
-                        /* Reset the game propreties */
-                        channel.game = {
-                            started: false,
-                            round: 0,
-                            drawer: "",
-                            drawURL: "",
-                            words: {
-                                started: false,
-                                hint: "",
-                                picked: "",
-                                proposed: [],
-                                found: [],
-                            }
-                        };
-                        channel.expires = "";
-                        channel.users[0].score = 0;
-                        channel.users[0].hasDrawn = false;
-                    }, 5000);
-                }else{
-                    if (channel.game.drawer.uuid == socket.uuid || channel.users.length - 1 <= channel.game.words.found.length)
-                    nextDrawer(socket, channel);
-                }
-            }
 
+                /* If there's no more user deletes the channel */
+                if (channel.users.length == 0) {
+                    saveStats();
+                    channels.splice(channel.index, 1);
+                    return;
+                }
+
+                /* Otherwise continue */
+
+                /* If he was the host replace him by the next one */
+                if (channel.host.username == socket.username) {
+                    channel.host = channel.users[0];
+                    io.to(channel.id).emit('host_changed', { username: channel.host.username });
+                }
+                
+                if(!channel.game.started) return;
+                if (channel.users.length == 1) {
+
+                    io.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
+                    io.to(channel.id).emit('game_end', { rank: getUsersByScore(channel) });
+                    /* Reset the game propreties */
+                    channel.game = {
+                        started: false,
+                        round: 0,
+                        drawer: "",
+                        drawURL: "",
+                        words: {
+                            started: false,
+                            hint: "",
+                            picked: "",
+                            proposed: [],
+                            found: [],
+                        }
+                    };
+                    channel.expires = "";
+                    channel.users[0].score = 0;
+                    channel.users[0].hasDrawn = false;
+
+                } else if (channel.game.drawer.uuid == socket.uuid || channel.users.length - 1 <= channel.game.words.found.length) nextDrawer(socket, channel);
+            }, 8000);
         }
     });
 
@@ -202,8 +199,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 channel.game.started = true;
                 channel.game.round++;
                 
-                socket.emit('game_start');
-                socket.to(socket.channel).emit('game_start');
+                io.to(socket.channel).emit('game_start');
                 
                 nextDrawer(socket, channel);
                 
@@ -224,7 +220,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 
                 if(value < 2 || value > 300) return;
                 channel.settings[name] = value;
-                socket.to(channel.id).emit('settings_changed', { settings: channel.settings });
+                io.to(channel.id).emit('settings_changed', { settings: channel.settings });
             }
         } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.missing_setting, errorMessage: ERROR_MESSAGES.BODY.missing_setting });         
 

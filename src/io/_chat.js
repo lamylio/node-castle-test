@@ -1,6 +1,29 @@
 const { io, sanitize } = require('../../app.js');
 const { nextDrawer, getUsersByScore } = require('../socket.js');
 
+const emojis = {
+    ":)": "emo-happy",
+    ":-)": "emo-happy",
+    ";)" : "emo-wink",
+    ";-)" : "emo-wink",
+    ":(" : "emo-sad",
+    ":-(" : "emo-sad",
+    ":/" : "emo-unhappy",
+    ":-/" : "emo-unhappy",
+    ":'(" : "emo-cry",
+    ";(" : "emo-cry",
+    ":D" : "emo-grin",
+    ":p" : "emo-tongue",
+    ":-p" : "emo-tongue",
+    "8)" : "emo-sunglasses",
+    "8-)" : "emo-sunglasses",
+    "^^" : "emo-laugh",
+    "♥" : "heart",
+    "bug": "bug",
+    ":shout:": "megaphone",
+    ":flag:": "flag",
+}
+
 /* ----- CHAT EVENTS ----- */
 module.exports = function (socket, channels, ERROR_MESSAGES) {
 
@@ -8,7 +31,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
         if (!socket.username || !socket.uuid || !socket.channel) return;
         if (!message.content) socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.missing_content, errorMessage: ERROR_MESSAGES.BODY.missing_content });
         else {
-            let content = sanitize(message.content, { allowedTags: ['b', 'i', 'u'] });
+            let content = sanitize(message.content, { allowedTags: ['b', 'i', 'u'], disallowedTagsMode: 'escape', selfClosing:['b', 'i', 'u'] });
+            if(content.trim() === '') return;
             let args = content.split(" ");
             /* Check if current user channel does exists */
             let channel = channels.find(channel => channel.id == socket.channel);
@@ -98,6 +122,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
                             io.to(channel.id).emit('word_found', { username: socket.username, score: increase });
                             io.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
+                            
+                            socket.emit('hint_word', { word: channel.game.words.picked });
 
                             setTimeout(() => {
                                 if (channel.game.words.found.length < channel.users.length - 1) return;
@@ -136,6 +162,9 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.wrong_identity, errorMessage: ERROR_MESSAGES.BODY.not_the_host });
                         break;
                     default:
+                        for(emoji in emojis){
+                            content = content.replace(emoji, `<i class='skicon-${emojis[emoji]}'></i>`);
+                        }
                         if(!args[0].startsWith('/', 0)) io.to(channel.id).emit('message', { username: socket.username, content });
                         break;
                 }

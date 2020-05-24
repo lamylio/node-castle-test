@@ -12,10 +12,10 @@ socket.on('user_left', (message) => {
 
 socket.on('host_changed', (message) => {
     createChatMessage({ console: true, content: `<b class="teal-text"><i class='skicon-star'></i> ${message.username} devient l'hôte</b>` });
-    if (localStorage.username != message.username) return;
     for (let s of document.querySelectorAll('.setting')) {
         for (let e of s.children) {
-            e.removeAttribute('disabled');
+            if (localStorage.username != message.username) e.setAttribute('disabled', '');
+            else e.removeAttribute('disabled');
         }
     }
     document.querySelector("#input_setting_talk").removeAttribute('disabled');
@@ -23,8 +23,16 @@ socket.on('host_changed', (message) => {
 });
 
 socket.on('drawer_changed', (message) => {
-    if (message.username == localStorage.username) drawzone.removeAttribute('disabled');
-    else drawzone.setAttribute('disabled', '');
+    if (message.username == localStorage.username) {
+        setTimeout(() => {
+            drawCursor();
+            drawzone.removeAttribute('disabled');
+        }, 1100);
+    }
+    else {
+        drawzone.style.cursor = 'not-allowed';
+        drawzone.setAttribute('disabled', '');
+    }
     createChatMessage({ console: true, content: `<b class="blue-text text-darken-3"><i class='skicon-palette'></i> ${message.username} dessine.</b>` });
 });
 

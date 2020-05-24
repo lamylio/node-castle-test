@@ -16,7 +16,7 @@ socket.on('pick_word', (message) => {
             let rd = message.words[Math.floor(Math.random() * 3)];
             chooseWord(rd);
         }, 1000 * 10);
-    }, 1500);
+    }, 1000);
 
     function chooseWord(word) {
         clearTimeout(time);
@@ -35,6 +35,8 @@ socket.on('reveal_word', (message) => {
     reveal.textContent = message.word;
     modal_reveal.open();
     clearInterval(timer_interval);
+    let timer = document.querySelector('header .timer');
+    timer.innerHTML = "<i class='skicon-spin1 spin'></i>";
     setTimeout(() => {
         modal_reveal.close();
     }, 3000);
@@ -48,7 +50,6 @@ socket.on('hint_word', (message) => {
     for (let ch of message.word) {
         createCustomElement('li', hint, { class: ["letter"], content: ch });
     }
-
 
     if(message.expires){
         clearInterval(timer_interval);
@@ -70,5 +71,5 @@ socket.on('hint_word', (message) => {
 socket.on('word_found', (message) => {
     if (!message.username) return;
     playAudio(AUDIO.WORD_FOUND);
-    createChatMessage({ console: true, content: `<b class="orange-text text-darken-3"><i class='skicon-lightbulb'></i> ${message.username} a trouvé. (+${message.score} pts)</b>` });
+    createChatMessage({ console: true, content: `<b class="yellow-text text-darken-3"><i class='skicon-lightbulb'></i> ${message.username} a trouvé. (+${message.score} pts)</b>` });
 });

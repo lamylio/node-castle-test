@@ -18,9 +18,9 @@ socket.on('game_start', () => {
 socket.on('game_end', (message) => {
     let rank = message.rank;
 
-    content = `<b class="yellow-text text-darken-3"><i class='skicon-award'></i> ${rank[0].username} a gagné avec ${rank[0].score} ${rank[0].score > 0 ? "points" : "point"} !</b>`;
+    content = `<b class="orange-text text-darken-3"><i class='skicon-award'></i> ${rank[0].username} a gagné avec ${rank[0].score} ${rank[0].score > 0 ? "points" : "point"} !</b>`;
     if(rank.length > 1){
-        if (rank[0].score == rank[1].score) content = `<b class="yellow-text text-darken-3"><i class='skicon-flag'></i> Nous avons une égalité avec ${rank[0].score} ${rank[0].score > 0 ? "points" : "point"} !</b>`; 
+        if (rank[0].score == rank[1].score) content = `<b class="yellow-text text-darken-3"><i class='skicon-award'></i> Nous avons une égalité avec ${rank[0].score} ${rank[0].score > 0 ? "points" : "point"} !</b>`; 
     }
     
     createChatMessage({ console: true, content });
@@ -42,7 +42,7 @@ socket.on('game_end', (message) => {
     let i = 1;
     for(u of rank){
         let classes = ["user", "card"], content = `${u.username} avec ${u.score} ${u.score > 0 ? 'points' : 'point'}`;
-        if(i <= 3) classes.push('yellow-text', 'text-darken-'+(5-i));
+        if(i <= 3) classes.push('orange-text', 'text-darken-'+(4-i));
         if(i == 1 || u.score == rank[0].score) content = "<i class='skicon-award'></i>" + content;
         createCustomElement('li', rankbox, {class: classes, content});
         i++;

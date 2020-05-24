@@ -1,4 +1,4 @@
-const { io, sanitize, manulex, game_stats, saveStats} = require('../app.js');
+const { io, sanitize, manulex, game_stats} = require('../app.js');
 
 module.exports.ERROR_MESSAGES = {
     TITLES: {
@@ -100,6 +100,7 @@ function nextDrawer(socket, channel) {
 
     if(channel.game.words.picked != ""){
         channel.game.words.hint = channel.game.words.picked;
+        io.to(channel.id).emit('hint_word', { word: channel.game.words.picked });
         io.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
     }
     

@@ -93,10 +93,14 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         /* Retrieve the drawer/drawing if game already started */
                         if (channel.game.started){
                             socket.emit('game_start');
+                            if(channel.game.drawer.uuid == socket.uuid){
+                                if (channel.game.words.picked != "") socket.emit('hint_word', { word: channel.game.words.picked, expires: Math.floor((channel.game.expires - new Date()) / 1000-1) });
+                                else socket.emit('pick_word', { words: channel.game.words.proposed });
+                            }else{
+                                if(channel.game.words.picked != "") socket.emit('hint_word', { word: channel.game.words.hint, expires: Math.floor((channel.game.expires - new Date())/1000-1) });
+                            }
                             socket.emit('drawer_changed', { username: channel.game.drawer.username })
                             socket.emit('retrieve_drawing', { url: channel.game.drawURL });
-                            if(channel.game.words.picked != "")
-                                socket.emit('hint_word', { word: channel.game.words.hint, expires: Math.floor((channel.game.expires-new Date())/1000) });
                         }
                         socket.emit('settings_changed', {settings: channel.settings});
 
@@ -118,9 +122,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             
             user.connected = false;
             io.to(channel.id).emit('user_left', { username: socket.username });
-            console.log(user);
 
-            //if (channel.game.started) io.to(channel.id).emit('message', { console: true, content: `<b class='pink-text text-darken-4 center-align'><i class='skicon-info-circled'></i>${socket.username} a 8 secondes pour se reconnecter.</b>` });
+            if (channel.game.started && (channel.game.drawer.uuid == socket.uuid || channel.host.uuid == socket.uuid)) io.to(channel.id).emit('message', { console: true, content: `<b class='pink-text text-darken-4 center-align'><i class='skicon-info-circled'></i>${socket.username} a 10 secondes pour se reconnecter.</b>` });
             
             setTimeout(() => {
                 if(user.connected) return;
@@ -139,7 +142,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 /* Otherwise continue */
 
                 /* If he was the host replace him by the next one */
-                if (channel.host.username == socket.username) {
+                if (channel.host.uuid == socket.uuid) {
                     channel.host = channel.users[0];
                     io.to(channel.id).emit('host_changed', { username: channel.host.username });
                 }
@@ -168,7 +171,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     channel.users[0].hasDrawn = false;
 
                 } else if (channel.game.drawer.uuid == socket.uuid || channel.users.length - 1 <= channel.game.words.found.length) nextDrawer(socket, channel);
-            }, 10000);
+            }, 10 * 1000);
         }
     });
 

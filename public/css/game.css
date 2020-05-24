@@ -185,6 +185,7 @@ h3 {
     grid-area: drawzone;
     max-height: 600px;
     max-width: 100%;
+    cursor: not-allowed;
 }
 
 .drawbox{

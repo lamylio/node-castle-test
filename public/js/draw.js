@@ -34,7 +34,6 @@ document.body.onload = () => {
     };
 
     changeBoxSize();
-    drawCursor();
 }
 
 /* Register events */
@@ -126,7 +125,7 @@ async function useTool(x0, y0, x1, y1) {
         case TOOLS.BUCKET:
             if(bucket) return;
             bucket = true;
-            await floodFill.fill(x0, y0, 100, context, false, null, 10);  
+            await floodFill.fill(x0, y0, 150, context, false, null, 20);  
             bucket = false;
         break;
         case TOOLS.PEN:

@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'skicon';
-  src: url('../font/skicon.eot?57841345');
-  src: url('../font/skicon.eot?57841345#iefix') format('embedded-opentype'),
-       url('../font/skicon.woff2?57841345') format('woff2'),
-       url('../font/skicon.woff?57841345') format('woff'),
-       url('../font/skicon.ttf?57841345') format('truetype'),
-       url('../font/skicon.svg?57841345#skicon') format('svg');
+  src: url('../font/skicon.eot?94959646');
+  src: url('../font/skicon.eot?94959646#iefix') format('embedded-opentype'),
+       url('../font/skicon.woff2?94959646') format('woff2'),
+       url('../font/skicon.woff?94959646') format('woff'),
+       url('../font/skicon.ttf?94959646') format('truetype'),
+       url('../font/skicon.svg?94959646#skicon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,16 +15,16 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'skicon';
-    src: url('../font/skicon.svg?57841345#skicon') format('svg');
+    src: url('../font/skicon.svg?94959646#skicon') format('svg');
   }
 }
 */
  
- [class^="icon-"]:before, [class*="icon-"]:before {
+ [class^="skicon-"]:before, [class*="icon-"]:before {
   font-family: "skicon";
   font-style: normal;
   font-weight: normal;
-  speak: none;
+  speak: never;
  
   display: inline-block;
   text-decoration: inherit;
@@ -54,6 +54,36 @@
   /* Uncomment for 3D effect */
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
+
+.spin{
+    -webkit-animation: spin 2s infinite linear;
+    animation: spin 2s infinite linear;
+    display: inline-block;
+}
+
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0);
+        transform: rotate(0)
+    }
+
+    to {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg)
+    }
+}
+
+@keyframes spin {
+    from {
+        -webkit-transform: rotate(0);
+        transform: rotate(0)
+    }
+
+    to {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg)
+    }
+}
  
 .skicon-mobile:before { content: '\e800'; } /* '' */
 .skicon-bucket:before { content: '\e801'; } /* '' */
@@ -77,6 +107,17 @@
 .skicon-users:before { content: '\e813'; } /* '' */
 .skicon-info-circled:before { content: '\e814'; } /* '' */
 .skicon-attention-circled:before { content: '\e815'; } /* '' */
+.skicon-emo-happy:before { content: '\e816'; } /* '' */
+.skicon-emo-wink:before { content: '\e817'; } /* '' */
+.skicon-emo-sad:before { content: '\e818'; } /* '' */
+.skicon-emo-unhappy:before { content: '\e819'; } /* '' */
+.skicon-emo-grin:before { content: '\e81a'; } /* '' */
+.skicon-emo-laugh:before { content: '\e81b'; } /* '' */
+.skicon-emo-tongue:before { content: '\e81c'; } /* '' */
+.skicon-emo-cry:before { content: '\e81d'; } /* '' */
+.skicon-spin1:before { content: '\e830'; } /* '' */
+.skicon-spin2:before { content: '\e832'; } /* '' */
+.skicon-spin3:before { content: '\e838'; } /* '' */
 .skicon-fullscreen:before { content: '\f0b2'; } /* '' */
 .skicon-lightbulb:before { content: '\f0eb'; } /* '' */
 .skicon-plus-squared:before { content: '\f0fe'; } /* '' */

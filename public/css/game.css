@@ -20,7 +20,7 @@ h3 {
     grid-template-columns: 1fr 600px 1fr;
     grid-template-rows: 600px 1fr;
     grid-gap: 1em;
-    margin: 2%;
+    margin: 1%;
     justify-content: center;
 }
 
@@ -201,7 +201,7 @@ h3 {
 /* ----- Palette ----- */
 
 .palette{
-    padding: 1em !important;
+    padding: 0 !important;
     grid-area: palette;
     max-height: 600px;
 }
@@ -286,13 +286,14 @@ header{
     display: grid;
     grid-template-areas: ". round" "timer hint";
     grid-template-columns: 100px 1fr 100px;
-    grid-template-rows: 50px 80px;
-    margin: auto 5%;
+    grid-template-rows: 30px 50px;
+    margin: auto 1%;
     align-items: center;
 }
 
 header .round{
     grid-area: round;
+    margin: 0 !important;
 }
 
 header h5{

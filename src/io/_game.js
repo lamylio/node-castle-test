@@ -41,7 +41,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     },
                     expires: 0,
                 },
-                locked: true
+                locked: false
             });
             /* Notify the user and send the link (id) of the game */
             socket.emit('game_redirect', { id: game_id });              
@@ -86,7 +86,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
 
                         /* Unlock the channel when the host join */
                         if (channel.host.uuid == socket.uuid) {
-                            channel.locked = false;
                             socket.emit('host_changed', { username: socket.username });
                         }
 

@@ -2,5 +2,4 @@ node_modules
 ecosystem.config.js
 *.db
 .env
-./src/manulex.json
 ./src/game_stats.json

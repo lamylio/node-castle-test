@@ -34,6 +34,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             let content = sanitize(message.content, { allowedTags: ['b', 'i', 'u'], disallowedTagsMode: 'escape', selfClosing:['b', 'i', 'u'] });
             if(content.trim() === '') return;
             let args = content.split(" ");
+            let [cmd, ...params] = args; 
             /* Check if current user channel does exists */
             let channel = channels.find(channel => channel.id == socket.channel);
             if (channel) {
@@ -57,7 +58,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         let d = new Date();
 
                         /* check the commands when game is started */
-                        switch (args[0]) {
+                        switch (cmd) {
                             case '/clean':
                             case '/clear':
                                 socket.emit('clean_drawing');
@@ -123,8 +124,6 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             io.to(channel.id).emit('word_found', { username: socket.username, score: increase });
                             io.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
                             
-                            socket.emit('hint_word', { word: channel.game.words.picked });
-
                             setTimeout(() => {
                                 if (channel.game.words.found.length < channel.users.length - 1) return;
                                 if (channel.game.round > channel.settings.rounds) return;
@@ -142,18 +141,18 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 }
 
                 /* Others commands */
-                switch (args[0]) {
+                switch (cmd) {
                     case '/becomehost':
                         channel.host = {username: socket.username, uuid: socket.uuid};
                         io.to(channel.id).emit('host_changed', { username: channel.host.username });
                         break;
                     case '/kick':
                         if (channel.host.uuid == socket.uuid) {
-                            if (args.length > 1) {
-                                let toKick = channel.users.find(u => u.username == args[1].trim());
+                            if (params.length > 0) {
+                                let toKick = channel.users.find(u => u.username == params.join(' ').trim());
                                 if (toKick) {
                                     if(toKick.uuid == socket.uuid) return;
-                                    io.to(toKick.uuid).emit('disconnect', "server namespace disconnect");
+                                    io.to(channel.id + toKick.uuid).emit('disconnect', "server namespace disconnect");
                                     io.to(channel.id).emit('message', { console: true, content: `<b class='pink-text text-darken-4 center-align'><i class='skicon-flag'></i> ${toKick.username} a été kické par ${socket.username}</b>` });
                                 } else {
                                     socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.user_not_found, errorMessage: ERROR_MESSAGES.BODY.user_not_found });

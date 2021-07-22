@@ -1,4 +1,4 @@
-const { io, sanitize, manulex, game_stats} = require('../app.js');
+const { io, sanitize, manulex, game_stats, server} = require('../app.js');
 
 module.exports.ERROR_MESSAGES = {
     TITLES: {
@@ -68,9 +68,9 @@ io.sockets.on('connection', (socket) => {
         
     }) 
 
-    require('./io/_game.js')(socket, getChannels(), this.ERROR_MESSAGES);
-    require('./io/_chat.js')(socket, getChannels(), this.ERROR_MESSAGES);
-    require('./io/_draw.js')(socket, getChannels(), this.ERROR_MESSAGES);
+    require('./io/_game')(socket, getChannels(), this.ERROR_MESSAGES);
+    require('./io/_chat')(socket, getChannels(), this.ERROR_MESSAGES);
+    require('./io/_draw')(socket, getChannels(), this.ERROR_MESSAGES);
 
 });
 
@@ -155,11 +155,11 @@ function nextDrawer(socket, channel) {
     channel.game.words.proposed.sort((a, b) => a.length - b.length);
     channel.game.drawer = next_drawer;
     
+    io.to(channel.id).emit('clean_drawing');
     io.to(channel.id).emit('drawer_changed', { username: next_drawer.username });
     io.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
-    io.to(channel.id).emit('clean_drawing');
 
-    io.to(next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
+    io.to(channel.id+next_drawer.uuid).emit('pick_word', { words: channel.game.words.proposed });
 }
 
 function getRandomWord(){

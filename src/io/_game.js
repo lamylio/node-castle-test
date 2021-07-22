@@ -79,7 +79,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                         socket.channel = channel.id;
                         /* Join, get users and broadcast it in the channel */
                         socket.join(socket.channel);
-                        socket.join(socket.uuid);
+                        socket.join(channel.id + socket.uuid);
 
                         io.to(channel.id).emit('user_joined', { username: socket.username });
                         io.to(channel.id).emit('list_users', { users: getUsersByScore(channel) });
@@ -150,8 +150,8 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 
                 if(!channel.game.started) return;
                 if (channel.users.length == 1) {
-
-                    io.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
+                    
+                    if (channel.game.words.picked != "") io.to(channel.id).emit('reveal_word', { word: channel.game.words.picked });
                     io.to(channel.id).emit('game_end', { rank: getUsersByScore(channel) });
                     /* Reset the game propreties */
                     channel.game = {
@@ -201,13 +201,11 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
             if(channel.users.length > 1){
 
                 channel.game.started = true;
+                game_stats.game_count++;
                 channel.game.round++;
                 
                 io.to(socket.channel).emit('game_start');
-                
                 nextDrawer(socket, channel);
-                
-                game_stats.game_count++;
                 
             } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.not_enough_players, errorMessage: ERROR_MESSAGES.BODY.not_enough_players });         
         }
@@ -224,7 +222,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                 
                 if(value < 2 || value > 300) return;
                 channel.settings[name] = value;
-                io.to(channel.id).emit('settings_changed', { settings: channel.settings });
+                socket.to(channel.id).emit('settings_changed', { settings: channel.settings });
             }
         } else socket.emit('user_error', { errorTitle: ERROR_MESSAGES.TITLES.missing_setting, errorMessage: ERROR_MESSAGES.BODY.missing_setting });         
 
@@ -261,7 +259,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                     channel.game.expires = d;
                     
                     socket.emit('hint_word', { word, expires: parseInt(channel.settings.duration)});
-                    socket.to(channel.id).emit('hint_word', { word: hidden_word, expires: parseInt(channel.settings.duration)});
+                    io.to(channel.id).emit('hint_word', { word: hidden_word, expires: parseInt(channel.settings.duration)});
 
                     let drawer = socket.uuid;
                     let round = channel.game.round;
@@ -285,7 +283,7 @@ module.exports = function (socket, channels, ERROR_MESSAGES) {
                             }
                             
                             channel.game.words.hint = channel.game.words.hint.substr(0, rd) + word.charAt(rd) + channel.game.words.hint.substr(rd+1);
-                            socket.to(channel.id).emit('hint_word', { word: channel.game.words.hint });
+                            io.to(channel.id).emit('hint_word', { word: channel.game.words.hint });
                             
                             count++;
                         }, 1000 * parseInt(channel.settings.duration) / 2 / 3);
